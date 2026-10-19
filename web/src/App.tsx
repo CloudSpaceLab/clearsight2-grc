@@ -1,265 +1,245 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 
-type Status = 'source_identified' | 'verification_pending'
+type Region = 'NG' | 'KE' | 'ZA' | 'GH' | 'EU'
 type Framework = {
-  id: string
-  title: string
-  edition: string
-  jurisdiction: 'NG' | 'KE' | 'ZA' | 'GH' | 'EU'
-  sectors: string[]
-  issuer: string
-  source_url: string
-  source_status: Status
-  content_status: 'metadata_only'
-  license: 'link_only'
-  requirements: string[]
+  id:string;title:string;edition:string;jurisdiction:Region;sectors:string[];
+  issuer:string;source_url:string;source_status:'source_identified'|'verification_pending';
+  content_status:'metadata_only';license:'link_only';requirements:string[]
 }
-type CatalogResult = { seed_revision: string; total: number; items: Framework[] }
-type Screen = 'overview' | 'frameworks'
-type LoadState = 'loading' | 'ready' | 'unavailable'
-
-const regions: Record<Framework['jurisdiction'], string> = {
-  NG: 'Nigeria', KE: 'Kenya', ZA: 'South Africa', GH: 'Ghana', EU: 'European Union',
+type Catalog = {seed_revision:string;total:number;items:Framework[]}
+type Screen = 'frameworks'|'home'
+type IconKey = 'home'|'layers'|'grid'|'form'|'users'|'shield'|'lock'|'chart'|'setting'|
+  'search'|'chevron'|'next'|'bell'|'globe'|'plus'|'filter'|'info'|'external'
+const regions:Record<Region,string> = {
+  NG:'Nigeria',KE:'Kenya',ZA:'South Africa',GH:'Ghana',EU:'European Union'
 }
-const sectorLabels: Record<string, string> = {
-  banking: 'Banking', fintech: 'Fintech', privacy: 'Privacy',
-  telecom: 'Telecom', 'oil-gas': 'Oil & Gas', 'cross-sector': 'Cross-sector',
+const sectors:Record<string,string> = {
+  banking:'Banking',fintech:'Fintech',privacy:'Privacy',telecom:'Telecommunications',
+  'oil-gas':'Oil & gas','cross-sector':'Cross-sector'
 }
-const menu = [
-  { label: 'Overview', id: 'overview', symbol: '◈', enabled: true },
-  { label: 'Programs', id: 'programs', symbol: '▤', enabled: false },
-  { label: 'Framework Library', id: 'frameworks', symbol: '◧', enabled: true },
-  { label: 'Work', id: 'work', symbol: '☷', enabled: false },
-  { label: 'Insights', id: 'insights', symbol: '▥', enabled: false },
-  { label: 'Reports', id: 'reports', symbol: '▧', enabled: false },
-  { label: 'Configure', id: 'configure', symbol: '⚙', enabled: false },
-] as const
-
-function isFrameworkArray(input: unknown): input is CatalogResult {
-  if (!input || typeof input !== 'object') return false
-  const value = input as Partial<CatalogResult>
-  return typeof value.seed_revision === 'string' && Array.isArray(value.items) &&
-    value.items.every(f => !!f && typeof f.id === 'string' && typeof f.title === 'string' &&
-      typeof f.source_url === 'string' && Array.isArray(f.sectors))
+const icons:Record<IconKey,ReactNode> = {
+  home:<><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-8h6v8"/></>,
+  grid:<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
+  layers:<><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></>,
+  form:<><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></>,
+  users:<><circle cx="10" cy="7" r="3"/><path d="M3 21v-2a7 7 0 0 1 14 0v2M18 5a3 3 0 0 1 0 6m3 10v-2a7 7 0 0 0-3-5.7"/></>,
+  shield:<><path d="m12 22 7-4V6l-7-4-7 4v12l7 4Z"/><path d="m9 12 2 2 4-4"/></>,
+  lock:<><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></>,
+  chart:<path d="M4 21V11h4v10M10 21V4h4v17M16 21v-8h4v8"/>,
+  setting:<><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></>,
+  search:<><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></>,
+  chevron:<path d="m7 10 5 5 5-5"/>,
+  next:<path d="m9 5 7 7-7 7"/>,
+  bell:<path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10M10 22h4"/>,
+  globe:<><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c6 6 6 14 0 20M12 2c-6 6-6 14 0 20"/></>,
+  plus:<path d="M12 4v16M4 12h16"/>,
+  filter:<path d="M4 7h16M7 12h10M10 17h4"/>,
+  info:<><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/></>,
+  external:<><path d="M14 4h6v6m0-6-9 9"/><path d="M20 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1 1-1h6"/></>
 }
-
-function App() {
-  const [screen, setScreen] = useState<Screen>('frameworks')
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [jurisdiction, setJurisdiction] = useState('')
-  const [sector, setSector] = useState('')
-  const [query, setQuery] = useState('')
-  const [verification, setVerification] = useState('all')
-  const [selected, setSelected] = useState<string | null>(null)
-  const [state, setState] = useState<LoadState>('loading')
-  const [catalog, setCatalog] = useState<CatalogResult | null>(null)
-  const [refresh, setRefresh] = useState(0)
-  const selectionRef = useRef<HTMLButtonElement | null>(null)
-  const headingRef = useRef<HTMLHeadingElement | null>(null)
-  const detailRef = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    setState('loading')
-    fetch('/api/v1/frameworks', { signal: controller.signal, headers: { Accept: 'application/json' } })
-      .then(async response => {
-        if (!response.ok) throw new Error('Catalog service unavailable')
-        const body: unknown = await response.json()
-        if (!isFrameworkArray(body)) throw new Error('Invalid catalog response')
+function Icon({name,className=''}:{name:IconKey;className?:string}) {
+  return <svg aria-hidden="true" focusable="false" className={'icon '+className}
+    viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+    strokeLinecap="round" strokeLinejoin="round">{icons[name]}</svg>
+}
+const nav:{label:string;icon:IconKey;screen?:Screen}[]=[
+  {label:'Home',icon:'home',screen:'home'},
+  {label:'Frameworks',icon:'layers',screen:'frameworks'},
+  {label:'Programs',icon:'grid'},{label:'Forms',icon:'form'},
+  {label:'Vendors',icon:'users'},{label:'Risk & Losses',icon:'shield'},
+  {label:'Privacy',icon:'lock'},{label:'Reports',icon:'chart'}
+]
+function validCatalog(raw:unknown):raw is Catalog {
+  if(!raw || typeof raw!=='object')return false
+  const c=raw as Partial<Catalog>
+  return typeof c.seed_revision==='string' && typeof c.total==='number' &&
+    Array.isArray(c.items) && c.items.every(f=>f!=null &&
+      typeof f.id==='string' && typeof f.title==='string' &&
+      typeof f.edition==='string' && typeof f.issuer==='string' &&
+      typeof f.source_url==='string' && f.jurisdiction in regions &&
+      Array.isArray(f.sectors) && (f.source_status==='source_identified'||f.source_status==='verification_pending') &&
+      f.content_status==='metadata_only' && f.license==='link_only' &&
+      Array.isArray(f.requirements) && f.requirements.length===0)
+}
+function sourceUrl(raw:string):string|null {
+  try {const url=new URL(raw);return url.protocol==='https:'?url.href:null}
+  catch{return null}
+}
+function App(){
+  const [screen,setScreen]=useState<Screen>('frameworks')
+  const [catalog,setCatalog]=useState<Catalog|null>(null)
+  const [loading,setLoading]=useState<'loading'|'ready'|'error'>('loading')
+  const [retry,setRetry]=useState(0)
+  const [query,setQuery]=useState('')
+  const [jurisdiction,setJurisdiction]=useState('')
+  const [industry,setIndustry]=useState('')
+  const [selectedId,setSelectedId]=useState<string|null>(null)
+  useEffect(()=>{
+    const controller=new AbortController()
+    setLoading('loading')
+    fetch('/api/v1/frameworks',{signal:controller.signal,headers:{Accept:'application/json'}})
+      .then(async r=>{if(!r.ok)throw Error('Catalog request failed')
+        const body:unknown=await r.json()
+        if(!validCatalog(body))throw Error('Invalid catalog response')
         return body
       })
-      .then(body => { setCatalog(body); setState('ready') })
-      .catch(() => { if (!controller.signal.aborted) { setCatalog(null); setState('unavailable') } })
-    return () => controller.abort()
-  }, [refresh])
-
-  const visible = useMemo(() => {
-    if (!catalog) return []
-    const term = query.trim().toLowerCase()
-    return catalog.items.filter(f =>
-      (!jurisdiction || f.jurisdiction === jurisdiction) &&
-      (!sector || f.sectors.includes(sector)) &&
-      (verification === 'all' || f.source_status === verification) &&
-      (!term || [f.title, f.id, f.edition, f.issuer].some(v => v.toLowerCase().includes(term)))
-    ).sort((a, b) => a.title.localeCompare(b.title))
-  }, [catalog, jurisdiction, sector, query, verification])
-  const detail = catalog?.items.find(f => f.id === selected) ?? null
-
-  useEffect(() => {
-    if (!selected) return
-    detailRef.current?.focus()
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setSelected(null)
-        selectionRef.current?.focus()
-      }
-      if (event.key === 'Tab') {
-        const focusable = detailRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')
-        if (!focusable?.length) { event.preventDefault(); return }
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault()
-          last?.focus()
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault()
-          first?.focus()
-        }
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = previousOverflow
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [selected])
-  function closeDetails() {
-    setSelected(null)
-    selectionRef.current?.focus()
-  }
-  function switchScreen(value: Screen) {
-    setScreen(value)
-    setSelected(null)
-    window.requestAnimationFrame(() => headingRef.current?.focus())
-  }
-
-  return <div className="frame" data-theme={theme}>
-    <a href="#main" className="skip-link">Skip to content</a>
-    <aside className="rail" aria-label="Main navigation">
-      <div className="logo-line">
-        <span className="brand-symbol" aria-hidden="true"><i /><b /><em /></span>
-        <span><strong>ClearSight</strong><small>GOVERNANCE & RISK</small></span>
-        <span className="generation">2</span>
-      </div>
-      <div className="rail-caption">WORKSPACE</div>
-      <nav className="rail-nav">
-        {menu.map(item => item.enabled
-          ? <button key={item.id} type="button" className={screen === item.id ? 'nav-entry active' : 'nav-entry'}
-              aria-current={screen === item.id ? 'page' : undefined}
-              onClick={() => switchScreen(item.id as Screen)}>
-              <span className="nav-symbol" aria-hidden="true">{item.symbol}</span>{item.label}
-            </button>
-          : <span key={item.id} className="nav-entry disabled" aria-disabled="true"
-              title="Requires authorized backend workflows">
-              <span className="nav-symbol" aria-hidden="true">{item.symbol}</span>{item.label}
-            </span>)}
+      .then(data=>{if(!controller.signal.aborted){setCatalog(data);setLoading('ready')}})
+      .catch(()=>{if(!controller.signal.aborted){setCatalog(null);setLoading('error')}})
+    return ()=>controller.abort()
+  },[retry])
+  const visible=useMemo(()=>{
+    const term=query.trim().toLowerCase()
+    return (catalog?.items??[]).filter(f=>
+      (!jurisdiction||f.jurisdiction===jurisdiction)&&
+      (!industry||f.sectors.includes(industry))&&
+      (!term||[f.title,f.id,f.issuer,f.edition,regions[f.jurisdiction],...f.sectors]
+        .some(part=>part.toLowerCase().includes(term)))
+    ).sort((a,b)=>a.title.localeCompare(b.title))
+  },[catalog,query,jurisdiction,industry])
+  const selected=visible.find(f=>f.id===selectedId)??visible[0]??null
+  const clear=()=>{setQuery('');setJurisdiction('');setIndustry('')}
+  return <div className="app">
+    <a href="#content" className="skip-link">Skip to content</a>
+    <aside className="sidebar" aria-label="Main navigation">
+      <div className="logo"><div className="logo-mark" aria-hidden="true"><i className="a"/><i className="b"/><i className="c"/></div>
+        <div><strong>ClearSight</strong><small>Governance · Risk · Compliance</small></div></div>
+      <nav className="nav" aria-label="Primary">
+        {nav.map(item=>item.screen
+          ? <button key={item.label} type="button" className={'nav-item'+(screen===item.screen?' active':'')}
+              aria-current={screen===item.screen?'page':undefined} onClick={()=>setScreen(item.screen as Screen)}>
+              <Icon name={item.icon}/><span>{item.label}</span></button>
+          : <span key={item.label} className="nav-item" aria-disabled="true"
+              title="Requires authenticated operational services"><Icon name={item.icon}/><span>{item.label}</span></span>)}
       </nav>
-      <div className="rail-bottom">
-        <span className="small-caps">ENVIRONMENT</span>
-        <strong>Foundation preview</strong>
-        <p>Catalog metadata only. Operational records and compliance scoring are not connected.</p>
-        <span className="rail-foot">ClearSight 2 · 2026</span>
-      </div>
+      <div className="side-bottom"><span className="nav-item" aria-disabled="true"><Icon name="setting"/><span>Settings</span></span>
+        <div className="release">ClearSight 2 · Foundation preview<br/>October 2026</div></div>
     </aside>
-    <div className="main-column">
-      <header className="toolbar">
-        <div className="crumb">ClearSight <span>/</span> {screen === 'frameworks' ? 'Framework Library' : 'Overview'}</div>
-        <div className="toolbar-actions">
-          <span className="scope-label">Organization</span>
-          <button className="scope-choice" type="button" disabled title="Tenant and group access must be authorized by the backend">Not connected <span aria-hidden="true">⌄</span></button>
-          <button type="button" className="theme-button" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            title="Switch theme">{theme === 'light' ? '◐' : '◑'}</button>
-          <span className="user-avatar" aria-label="Not signed in">—</span>
-        </div>
+    <div className="main">
+      <header className="topbar">
+        {(['Branches','Departments','Teams','Groups'] as const).map((label,i)=><button key={label} disabled
+          className="scope" type="button" title="Requires authorized organization scope">
+          <Icon name={i===2?'users':i===0||i===3?'grid':'layers'}/>{label}<Icon name="chevron" className="chev"/></button>)}
+        <div className="grow"/>
+        <button type="button" className="global-search" disabled title="Requires authorized search">
+          <Icon name="search"/>Search unavailable</button>
+        <button className="top-icon" type="button" disabled aria-label="Notifications unavailable"><Icon name="bell"/></button>
+        <div className="profile"><div className="avatar">—</div><div><strong>Not signed in</strong><small>Foundation preview</small></div></div>
       </header>
-      <main className="main-content" id="main">
-        {screen === 'overview' ? <section className="overview">
-          <div className="page-head">
-            <div><div className="eyebrow">OVERSIGHT</div><h1 ref={headingRef} tabIndex={-1}>Enterprise Control Tower</h1>
-              <p>Connect an authorized organization to see current risk, compliance and work.</p></div>
-          </div>
-          <div className="metric-grid" aria-label="No operational metrics available">
-            {['Compliance posture', 'Open issues', 'Pending reviews', 'Current evidence'].map(m =>
-              <div className="surface metric" key={m}><span className="metric-name">{m}</span><strong>—</strong><small>Not connected</small></div>)}
-          </div>
-          <section className="surface callout"><h2>No organization connected</h2>
-            <p>Operational measures require verified tenant scope and source-backed calculations. No example values are displayed.</p>
-            <button className="primary action" type="button" onClick={() => switchScreen('frameworks')}>Browse framework references <span aria-hidden="true">→</span></button>
+      <main className="content" id="content">
+        {screen==='home'?<>
+          <section className="page-heading"><div className="heading-copy"><div className="eyebrow">Oversight / Home</div>
+            <h1>Enterprise Control Tower</h1><p>Connect an authorized organization to see current risk, compliance and work.</p></div></section>
+          <div className="inline-state"><h3>No organization connected</h3>
+            <p>Source-backed measures and approvals require authenticated tenant access. No illustrative counts are shown.</p>
+            <button type="button" className="button primary" onClick={()=>setScreen('frameworks')}>Browse framework references <Icon name="next"/></button></div>
+        </>:<>
+          <section className="page-heading">
+            <div className="decor" aria-hidden="true"><svg viewBox="0 0 760 130" preserveAspectRatio="none">
+              <path d="M0 122 C150 96 190 126 300 60 C370 14 430 112 530 64 C635 13 655 39 760 75 L760 130 L0 130Z" fill="#a8dcff" opacity=".17"/>
+              <path d="M0 128 C135 111 218 120 336 75 C447 28 470 105 565 62 C640 25 690 49 760 22 L760 130 L0 130Z" fill="#75bffe" opacity=".12"/>
+            </svg></div>
+            <div className="heading-copy"><div className="eyebrow">Compliance / Reference library</div>
+              <h1>Framework Library</h1><p>Review an edition before adding it to a Program.</p></div>
+            <div className="heading-actions">
+              <span className="subtle-badge"><Icon name="info"/>Metadata only</span>
+              <button className="button ghost" disabled type="button" title="Requires regulated source management"><Icon name="setting"/>Manage regulators</button>
+              <button className="button primary" disabled type="button" title="Requires reviewed source and authorization"><Icon name="plus"/>Add framework</button>
+            </div>
           </section>
-        </section> : <section>
-          <div className="page-head">
-            <div>
-              <div className="eyebrow">PROGRAMS <span className="eyebrow-separator">/</span> REFERENCE</div>
-              <h1 ref={headingRef} tabIndex={-1}>Framework Library</h1>
-              <p>Explore regulatory frameworks and published standards by jurisdiction and sector.</p>
-            </div>
-            <div className="head-meta"><span className="label-chip">Metadata only</span><span>Source-linked editions</span></div>
+          <div className="tabs" role="tablist" aria-label="Library views">
+            <button className="tab selected" type="button" role="tab" aria-selected="true">Explore</button>
+            <button className="tab" type="button" role="tab" aria-selected="false" disabled>In my Programs</button>
+            <button className="tab" type="button" role="tab" aria-selected="false" disabled>Edition updates</button>
           </div>
-          <div className="intro-band">
-            <span className="intro-symbol" aria-hidden="true">◈</span>
-            <div><strong>Build a Program from verified requirements</strong>
-              <p>Sources are listed for discovery. Clause coverage and adopted editions require independent review.</p></div>
-            <button className="action disabled-action" disabled type="button" title="Program adoption requires governed mappings and approval">Add to Program</button>
+          <div className="searchbar">
+            <label className="searchbox"><Icon name="search"/><input type="search"
+              aria-label="Search framework references" placeholder="Search standards, regulators, or requirements"
+              value={query} onChange={e=>setQuery(e.currentTarget.value)}/></label>
+            <label className="dropdown"><Icon name="globe"/><select value={jurisdiction} aria-label="Jurisdiction"
+              onChange={e=>setJurisdiction(e.currentTarget.value)}>
+              <option value="">All jurisdictions</option>
+              {Object.entries(regions).map(([id,name])=><option key={id} value={id}>{name}</option>)}
+            </select><Icon name="chevron"/></label>
+            <label className="dropdown"><Icon name="filter"/><select value={industry} aria-label="Industry"
+              onChange={e=>setIndustry(e.currentTarget.value)}>
+              <option value="">All industries</option>
+              {Object.entries(sectors).map(([id,name])=><option key={id} value={id}>{name}</option>)}
+            </select><Icon name="chevron"/></label>
+            <button type="button" className="clear" onClick={clear} disabled={!query&&!jurisdiction&&!industry}>Clear filters</button>
           </div>
-          <div className="section-heading"><div><h2>Reference editions</h2><p>Source identification is not approval for assessment.</p></div>
-            <span className="result-count" aria-live="polite">{state === 'ready' ? `${visible.length} of ${catalog?.total ?? 0} entries` : 'Not available'}</span>
+          <div className="workspace">
+            <section className="results" aria-label="Framework reference list">
+              <div className="results-head"><h2>Reference editions <span>· {loading==='ready'?visible.length:'—'} entries</span></h2>
+                <span>Edition and content rights shown for every entry</span></div>
+              <div className="results-list">
+                {loading==='loading'?<div className="inline-state" role="status">Loading references…</div>
+                :loading==='error'?<div className="inline-state" role="alert"><h3>Catalog unavailable</h3>
+                    <p>Could not load the catalog. No example values have been substituted.</p>
+                    <button type="button" className="button" onClick={()=>setRetry(i=>i+1)}>Retry</button></div>
+                :visible.length===0?<div className="inline-state"><h3>No matching editions</h3>
+                    <p>Change the search, jurisdiction or industry.</p>
+                    <button className="button" type="button" onClick={clear}>Clear filters</button></div>
+                :visible.map(f=><button className={'framework-row'+(selected?.id===f.id?' selected':'')}
+                    type="button" key={f.id} aria-pressed={selected?.id===f.id} onClick={()=>setSelectedId(f.id)}>
+                  <span className="fw-logo">{f.jurisdiction}</span>
+                  <span><span className="fw-title">{f.title}</span><span className="fw-desc">{f.issuer}</span>
+                    <span className="fw-tags"><span className="tag">{regions[f.jurisdiction]}</span>
+                      <span className="tag"><b>·</b></span>
+                      <span className="tag">{sectors[f.sectors[0]]??'Reference'}</span></span></span>
+                  <span className="edition"><strong>{f.issuer}</strong><small>Edition {f.edition}</small></span>
+                  <span className="fw-status"><span className={'pill '+(f.source_status==='source_identified'?'blue':'gold')}>
+                    {f.source_status==='source_identified'?'Source identified':'Verify source'}</span>
+                    <span>Link only</span></span><Icon name="next" className="fw-chevron"/>
+                </button>)}
+              </div>
+              <div className="pagefoot"><span>Metadata only · No requirements approved or scored</span>
+                <span>Catalog seed {catalog?.seed_revision??'—'}</span></div>
+            </section>
+            <aside className="detail-card" aria-label="Selected framework details">
+              {selected?<>
+                <div className="detail-hero"><svg aria-hidden="true" className="mesh" viewBox="0 0 160 120">
+                  <g stroke="#fff" fill="none" strokeOpacity=".7"><path d="M9 81 48 47 90 65 120 17 145 54 90 65 113 105 9 81 48 47 113 105 145 54"/></g>
+                  <g fill="#fff"><circle cx="9" cy="81" r="4"/><circle cx="48" cy="47" r="4"/><circle cx="90" cy="65" r="4"/><circle cx="120" cy="17" r="4"/><circle cx="145" cy="54" r="4"/><circle cx="113" cy="105" r="4"/></g>
+                </svg><div className="detail-icon">{selected.jurisdiction}</div>
+                  <div className="detail-kicker"><span className="dot"/>Selected edition</div></div>
+                <div className="detail-body"><h2 className="detail-title">{selected.title}</h2>
+                  <p className="detail-subtitle">{selected.issuer}</p>
+                  <div className="detail-chips"><span className="pill blue">{regions[selected.jurisdiction]}</span>
+                    <span className="pill">{sectors[selected.sectors[0]]??'Reference'}</span>
+                    <span className="pill gold">Metadata only</span></div>
+                  <section className="detail-section"><h3>Edition details <span className="muted">Reference metadata</span></h3>
+                    <div className="facts">
+                      <div className="fact"><small>Publisher</small><strong>{selected.issuer}</strong></div>
+                      <div className="fact"><small>Edition</small><strong>{selected.edition}</strong></div>
+                      <div className="fact"><small>Jurisdiction</small><strong>{regions[selected.jurisdiction]}</strong></div>
+                      <div className="fact"><small>Content</small><strong>Link only</strong></div>
+                      <div className="fact"><small>Source status</small><strong>{selected.source_status==='source_identified'?'Identified':'Verification pending'}</strong></div>
+                      <div className="fact"><small>Approved clauses</small><strong>None</strong></div>
+                    </div>
+                    <div className="detail-note"><Icon name="info"/>
+                      <span>Requirements and applicability need independent review. Full text remains with its publisher.</span></div>
+                  </section>
+                  <section className="detail-section adopt"><h3>Use in a Program</h3>
+                    <div className="adopt-flow">
+                      <div className="step"><em>1</em>Select an existing Program</div>
+                      <div className="step"><em>2</em>Confirm applicable requirements</div>
+                      <div className="step"><em>3</em>Review control and evidence links</div>
+                    </div>
+                    <button type="button" className="button primary action-full" disabled
+                      title="Needs tenant access, verified clauses and governance">Review adoption <Icon name="next"/></button>
+                    <div className="right-meta">Requires reviewer approval; no compliance result is created</div>
+                    {sourceUrl(selected.source_url)&&<a className="button detail-source" href={sourceUrl(selected.source_url)??undefined}
+                      target="_blank" rel="noopener noreferrer">Open publisher source <Icon name="external"/></a>}
+                  </section>
+                </div>
+              </>:<div className="inline-state"><h3>No edition selected</h3>
+                <p>{loading==='ready'?'Select an edition or clear your filters.':'Edition details appear when the catalog is available.'}</p></div>}
+            </aside>
           </div>
-          <div className="surface library-panel">
-            <div className="filter-bar">
-              <label className="search-wrap"><span className="sr-only">Search frameworks</span>
-                <span aria-hidden="true">⌕</span><input type="search" placeholder="Search frameworks or regulators"
-                  value={query} onChange={e => setQuery(e.currentTarget.value)} /></label>
-              <label className="field-select"><span className="sr-only">Jurisdiction</span>
-                <select value={jurisdiction} onChange={e => setJurisdiction(e.currentTarget.value)}>
-                  <option value="">All jurisdictions</option>{Object.entries(regions).map(([id,name]) => <option value={id} key={id}>{name}</option>)}
-                </select></label>
-              <label className="field-select"><span className="sr-only">Industry</span>
-                <select value={sector} onChange={e => setSector(e.currentTarget.value)}>
-                  <option value="">All industries</option>{Object.entries(sectorLabels).map(([id,name]) => <option value={id} key={id}>{name}</option>)}
-                </select></label>
-              <label className="field-select"><span className="sr-only">Verification state</span>
-                <select value={verification} onChange={e => setVerification(e.currentTarget.value)}>
-                  <option value="all">All source states</option><option value="source_identified">Source identified</option><option value="verification_pending">Verification pending</option>
-                </select></label>
-              {(query || jurisdiction || sector || verification !== 'all') && <button type="button" className="reset-link"
-                onClick={() => {setQuery('');setJurisdiction('');setSector('');setVerification('all')}}>Clear filters</button>}
-            </div>
-            {state === 'loading' ? <div className="message"><div className="loading-indicator" aria-hidden="true" />Loading references…</div>
-            : state === 'unavailable' ? <div className="message" role="alert"><h3>Catalog unavailable</h3>
-                <p>The framework service could not be reached. No cached compliance data is substituted.</p>
-                <button className="action" onClick={() => setRefresh(n => n + 1)} type="button">Retry</button></div>
-            : visible.length === 0 ? <div className="message"><h3>No matching frameworks</h3><p>Try a different jurisdiction, sector or search.</p></div>
-            : <div className="framework-list" role="list">
-              {visible.map(f => <div className="framework-row" role="listitem" key={f.id}>
-                <span className="framework-mark" aria-hidden="true">{f.jurisdiction}</span>
-                <div className="framework-info"><button type="button" className="framework-title"
-                  onClick={e => {selectionRef.current = e.currentTarget;setSelected(f.id)}}>{f.title}</button>
-                  <div className="framework-meta"><span>{regions[f.jurisdiction]}</span><span aria-hidden="true">·</span>
-                    <span>{f.issuer}</span><span aria-hidden="true">·</span><span>{f.edition}</span></div></div>
-                <span className={f.source_status === 'source_identified' ? 'status-pill found' : 'status-pill waiting'}>
-                  {f.source_status === 'source_identified' ? 'Source identified' : 'Verify source'}</span>
-                <button className="inspect" type="button" onClick={e => {selectionRef.current=e.currentTarget;setSelected(f.id)}}
-                  aria-label={`Inspect ${f.title}`}>Inspect <span aria-hidden="true">→</span></button>
-              </div>)}
-            </div>}
-            <div className="panel-footer">Catalog seed {catalog?.seed_revision ?? 'unavailable'} · No obligations adopted or scored</div>
-          </div>
-        </section>}
+        </>}
       </main>
     </div>
-    {detail && <div className="details-overlay" onMouseDown={e => { if (e.target === e.currentTarget) closeDetails() }}>
-      <aside className="details" role="dialog" aria-modal="true" aria-labelledby="detail-title" tabIndex={-1} ref={detailRef}>
-        <div className="detail-top"><span className="eyebrow">REFERENCE EDITION</span>
-          <button className="close-button" type="button" onClick={closeDetails} aria-label="Close edition details">×</button></div>
-        <h2 id="detail-title">{detail.title}</h2><p className="detail-summary">Reference metadata and provenance</p>
-        <dl className="detail-fields">
-          <div><dt>Jurisdiction</dt><dd>{regions[detail.jurisdiction]}</dd></div>
-          <div><dt>Edition</dt><dd>{detail.edition}</dd></div>
-          <div><dt>Issuer</dt><dd>{detail.issuer}</dd></div>
-          <div><dt>Industries</dt><dd>{detail.sectors.map(s => sectorLabels[s] ?? s).join(', ')}</dd></div>
-          <div><dt>Source status</dt><dd>{detail.source_status === 'source_identified' ? 'Source identified' : 'Verification pending'}</dd></div>
-          <div><dt>Requirements</dt><dd>Not imported or approved</dd></div>
-          <div><dt>Use rights</dt><dd>Link only; source text is not redistributed</dd></div>
-        </dl>
-        <div className="detail-notice"><strong>Not yet assessable</strong>
-          <p>An authorized reviewer must verify the edition, requirements, licensing and applicability before adoption.</p></div>
-        <a className="primary action source-action" href={detail.source_url} target="_blank" rel="noopener noreferrer">
-          Open source <span aria-hidden="true">↗</span></a>
-      </aside>
-    </div>}
   </div>
 }
 export default App
