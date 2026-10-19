@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "source_repository": "CloudSpaceLab/clearsight-grc",
+  "source_commit": "183336ed518cdc63ba05d9ab3f97b808d923c7ff",
+  "expected_up_migrations": 155,
+  "postgres_major": 18,
+  "scope": "CI-only migration compatibility rehearsal; no customer data or production migration authority."
+}
