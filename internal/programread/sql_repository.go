@@ -38,6 +38,11 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
   requirementsStatement, err := db.PrepareContext(ctx, approvedRequirementsSQL)
   if err != nil { return fmt.Errorf("Program requirements schema incompatible: %w", err) }
   if err := requirementsStatement.Close(); err != nil { return fmt.Errorf("close Program requirements schema check: %w", err) }
+  for _, statement := range []string{controlInventorySQL,evidenceInventorySQL} {
+    prepared,err:=db.PrepareContext(ctx,statement)
+    if err!=nil{return fmt.Errorf("Program inventory schema incompatible: %w",err)}
+    if err:=prepared.Close();err!=nil{return fmt.Errorf("close Program inventory schema check: %w",err)}
+  }
   return nil
  }
 

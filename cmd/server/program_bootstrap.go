@@ -99,7 +99,15 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 			handler.ServeRequirementsHTTP(w,r.WithContext(queryCtx))
 			return
 		}
-		handler.ServeHTTP(w, r.WithContext(queryCtx))
+		switch r.Pattern {
+        case "GET /api/v1/programs/{id}/controls":
+            handler.ServeInventoryHTTP(w,r.WithContext(queryCtx),programread.InventoryControls)
+            return
+        case "GET /api/v1/programs/{id}/evidence-contracts":
+            handler.ServeInventoryHTTP(w,r.WithContext(queryCtx),programread.InventoryEvidenceContracts)
+            return
+        }
+        handler.ServeHTTP(w, r.WithContext(queryCtx))
 	}), db, nil
 }
 
@@ -115,6 +123,8 @@ func buildRouter(c catalog.Catalog, protectedProgram http.Handler) *http.ServeMu
 		mux.Handle("GET /api/v1/programs", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}/requirements", protectedProgram)
+        mux.Handle("GET /api/v1/programs/{id}/controls", protectedProgram)
+        mux.Handle("GET /api/v1/programs/{id}/evidence-contracts", protectedProgram)
 	}
 	return mux
 }
