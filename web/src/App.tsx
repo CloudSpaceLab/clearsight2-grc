@@ -88,14 +88,32 @@ function App() {
   useEffect(() => {
     if (!selected) return
     detailRef.current?.focus()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     function onKey(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setSelected(null)
         selectionRef.current?.focus()
       }
+      if (event.key === 'Tab') {
+        const focusable = detailRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')
+        if (!focusable?.length) { event.preventDefault(); return }
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last?.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first?.focus()
+        }
+      }
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKey)
+    }
   }, [selected])
   function closeDetails() {
     setSelected(null)
