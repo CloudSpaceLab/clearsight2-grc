@@ -16,5 +16,5 @@ for cls in ("assessment-heading","work-mode-tabs","completion-strip","assessment
 for forbidden in ("11 of 18", "61%", "Ada Okafor", "MFA enforcement report", "Clear Bank Nigeria"):
     assert forbidden not in markup, f"Prototype data leaked to runtime: {forbidden}"
 assert "disabled" in markup and "No authorized questions" in markup
-assert "screen==='assessment'" in (root/"web/src/App.tsx").read_text()
+assert re.search(r"route\.screen\s*===\s*'assessment'", (root/"web/src/App.tsx").read_text()), "Assessment route missing"
 print("Assessment CSS/structure guard passed (not browser or operational parity)")

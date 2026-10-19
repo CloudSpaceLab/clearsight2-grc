@@ -45,3 +45,39 @@ test('preserves HTTP denial states and never adds client auth headers', async ()
     globalThis.fetch = saved
   }
 })
+
+import { fetchProgramPage, isProgramPage } from '../src/features/programs/programDirectory.ts'
+
+test('Program discovery response rejects malformed, oversized and duplicate records', () => {
+  assert.ok(isProgramPage({items:[record]}))
+  assert.ok(isProgramPage({items:[]}))
+  assert.equal(isProgramPage({items:[record,record]}),false)
+  assert.equal(isProgramPage({items:[{...record,source_revision:''}]}),false)
+  assert.equal(isProgramPage({items:[{...record,id:'test'}]}),false)
+  assert.equal(isProgramPage({items:[record],next_cursor:1}),false)
+  assert.equal(isProgramPage({items:[record],next_cursor:'a'.repeat(257)}),false)
+})
+
+test('Program discovery retains same-origin security and distinguishes sign-in/denial/outage',async()=>{
+  const original=globalThis.fetch
+  try{
+    for(const [status,expected] of [[401,'unauthenticated'],[403,'forbidden'],[404,'unavailable'],[500,'unavailable']]){
+      globalThis.fetch=async(url,init)=>{
+        assert.equal(url,'/api/v1/programs?limit=25')
+        assert.equal(init.credentials,'same-origin')
+        assert.equal(init.cache,'no-store')
+        assert.deepEqual(init.headers,{Accept:'application/json'})
+        return {status,ok:false}
+      }
+      assert.deepEqual(await fetchProgramPage('',new AbortController().signal),{status:expected})
+    }
+    globalThis.fetch=async(url)=>{
+      assert.equal(url,'/api/v1/programs?limit=25&cursor=opaque')
+      return {status:200,ok:true,json:async()=>({items:[record],next_cursor:'next'})}
+    }
+    assert.deepEqual(await fetchProgramPage('opaque',new AbortController().signal),
+      {status:'ready',items:[record],nextCursor:'next'})
+    globalThis.fetch=async()=>({status:200,ok:true,json:async()=>({items:[{...record,id:'INVALID'}]})})
+    assert.deepEqual(await fetchProgramPage('',new AbortController().signal),{status:'unavailable'})
+  }finally{globalThis.fetch=original}
+})
