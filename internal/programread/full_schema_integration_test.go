@@ -153,4 +153,22 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 		t.Fatalf("cross-tenant canonical source read was not denied: %v",err)
 	}
 
+	// On the complete pinned v1 schema, only the authenticated principal's
+	// visible Matters may influence the Program-facing exception position.
+	exec(`INSERT INTO matters(id,tenant_id,legal_entity_id,reference,matter_type,status,priority,title,summary,scope)
+	VALUES ($1::uuid,$2::uuid,$5::uuid,'V2-A','CONTROL_GAP','TRIAGE',3,'Synthetic internal','Test only','{}'::jsonb),
+	       ($3::uuid,$2::uuid,$5::uuid,'V2-B','CONTROL_GAP','TRIAGE',3,'Synthetic restricted','Test only',
+	       jsonb_build_object('access','RESTRICTED','allowed_principal_ids',jsonb_build_array($4::text)))`,
+		fixtureUUID(1601),fixtureUUID(1001),fixtureUUID(1602),fixtureUUID(9999),fixtureUUID(1011))
+	exec(`INSERT INTO matter_links(tenant_id,matter_id,program_id)
+	VALUES($1::uuid,$2::uuid,$3::uuid),($1::uuid,$4::uuid,$3::uuid)`,
+		fixtureUUID(1001),fixtureUUID(1601),fixtureUUID(1301),fixtureUUID(1602))
+	internal,err:=reader.currentCoverageSnapshot(ctx,permitted,fixtureUUID(1301))
+	if err!=nil || internal.VisibleMatters.OpenCount!=1 {
+		t.Fatalf("restricted Matter leaked through v1 schema: %+v %v",internal.VisibleMatters,err)
+	}
+	if _,err:=reader.currentCoverageSnapshot(ctx,permitted,fixtureUUID(1303));!errors.Is(err,ErrNotFound){
+		t.Fatalf("cross-tenant Matter count reached outside actor scope: %v",err)
+	}
+
 }

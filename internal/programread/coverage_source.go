@@ -20,6 +20,7 @@ type scopedCoverageSnapshot struct {
  SourceHealth continuity.ProgramSourceState
  PolicyVerified *continuity.ProgramCompliancePolicyPosition
  ProgramStatus continuity.ProgramStatus
+ VisibleMatters visibleMatterSummary
 }
 
 // Retain the original private API for existing regression tests. It is never
@@ -59,6 +60,8 @@ func (r *SQLRepository) currentCoverageSnapshot(ctx context.Context,actor identi
  if err:=loadCoverageFacts(ctx,tx,actor.TenantID,program.ID,&source);err!=nil{return scopedCoverageSnapshot{},err}
  health,err:=loadProgramSourceHealth(ctx,tx,actor.TenantID,program.ID)
  if err!=nil{return scopedCoverageSnapshot{},err}
+ matters,err:=loadVisibleProgramMatters(ctx,tx,actor.TenantID,program.ID,actor.PrincipalID,actor.LegalEntityID)
+ if err!=nil{return scopedCoverageSnapshot{},err}
  // It is critical that no caller can observe results from an incomplete
  // source read. Every query and transaction must succeed before evaluation.
  if err:=tx.Commit();err!=nil{return scopedCoverageSnapshot{},fmt.Errorf("commit coverage snapshot: %w",err)}
@@ -67,6 +70,7 @@ func (r *SQLRepository) currentCoverageSnapshot(ctx context.Context,actor identi
   SourceHealth:health,
   PolicyVerified:position.Position,
   ProgramStatus:position.Status,
+  VisibleMatters:matters,
  },nil
 }
 

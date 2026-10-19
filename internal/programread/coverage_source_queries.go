@@ -41,6 +41,7 @@ var coverageSourceQueries = [...]string{
  coverageLinksSQL,coverageContractsSQL,coverageAssessmentsSQL,
  coverageSourceHealthSQL,
  currentProgramPolicySQL,lastApprovedPolicyEventSQL,
+ visibleProgramMattersSQL,
 }
 
 // CheckCoverageSourceSchema is an independent, opt-in gate for the *internal*

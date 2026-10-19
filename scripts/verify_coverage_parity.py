@@ -22,6 +22,8 @@ BLOBS = {
     "internal/continuity/program_compliance_requirements_test.go": "d4b7c03068e9c42eb45283e775beafd122784f85",
     "internal/continuity/program_compliance_policy_test.go": "d48e34e8d4c880e44fc5cc3a9592263a76d6af5f",
     "internal/continuity/program_compliance_projection.go": "62d005b0de49a4a896640651f578246eceb9ed3f",
+    "internal/continuity/access.go": "94431b70651b8ab3c2901031d9faf8e71a1c4092",
+    "internal/continuity/access_test.go": "4c17ff30c4b4eafec1674d730da7e964706e7659",
 }
 HELPERS = "internal/continuity/coverage_helpers.go"
 UPSTREAM_HELPERS = "internal/continuity/state.go"

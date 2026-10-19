@@ -43,6 +43,15 @@ CREATE TABLE continuity_events (
  aggregate_version bigint NOT NULL, event_type text NOT NULL, payload jsonb NOT NULL,
  actor_type text NOT NULL, actor_id uuid, occurred_at timestamptz NOT NULL
 );
+CREATE TABLE matters (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, legal_entity_id uuid NOT NULL,
+ status text NOT NULL, scope jsonb NOT NULL DEFAULT '{}'::jsonb,
+ updated_at timestamptz NOT NULL
+);
+CREATE TABLE matter_links (
+ tenant_id uuid NOT NULL, matter_id uuid NOT NULL REFERENCES matters(id),
+ program_id uuid NOT NULL REFERENCES programs(id)
+);
 CREATE TABLE program_requirements (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
  code text NOT NULL, title text NOT NULL, version bigint NOT NULL, source_id uuid,
