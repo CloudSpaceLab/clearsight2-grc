@@ -31,6 +31,7 @@ type Program struct {
  ID string
  TenantID string
  Status ProgramStatus
+ CalculationPolicy *ProgramCompliancePolicyPosition
 }
 
 type Requirement struct {
@@ -90,4 +91,29 @@ type ProgramAggregate struct {
  RequirementControlLinks []RequirementControlLink
  EvidenceContracts []EvidenceContract
  EvidenceAssessments []EvidenceAssessment
+}
+
+
+// Canonical v1 maker-checker position. No mutations or approval path are
+// implemented in v2; these are verified input facts for projection only.
+type ProgramCompliancePolicyRevision struct {
+ Number int64 `json:"number"`
+ Definition ProgramComplianceCalculationPolicy `json:"definition"`
+ Checksum string `json:"checksum"`
+ MakerID string `json:"maker_id"`
+ ProposedAt time.Time `json:"proposed_at"`
+ ApproverID string `json:"approver_id,omitempty"`
+ ApprovedAt *time.Time `json:"approved_at,omitempty"`
+}
+
+type ProgramCompliancePolicyPosition struct {
+ LastRevision int64 `json:"last_revision"`
+ Active *ProgramCompliancePolicyRevision `json:"active,omitempty"`
+ Pending *ProgramCompliancePolicyRevision `json:"pending,omitempty"`
+}
+
+type ProgramSourceState struct {
+ Required int
+ Current bool
+ Known bool
 }
