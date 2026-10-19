@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { isProgramRecord } from './programRecord'
+import { isProgramRecord } from './programRecord.ts'
 import type { ProgramRecord } from './programRecord'
 
 export type ProgramPage =
