@@ -199,6 +199,9 @@ func TestPostgresSignedProgramRead(t *testing.T){
 func TestPostgresSchemaReadinessGate(t *testing.T) {
 	db := testDB(t)
 	ctx := context.Background()
+	if err := CheckOperationalSchema(ctx, db); err == nil {
+		t.Fatal("reduced Program-only schema must not pass governance readiness")
+	}
 	if err := CheckSchema(ctx, db); err != nil {
 		t.Fatalf("compatible v1 read columns rejected: %v", err)
 	}
