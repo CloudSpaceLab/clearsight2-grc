@@ -10,7 +10,7 @@ export default function App(){
   const [screen,setScreen]=useState<Screen>(() => new URLSearchParams(window.location.search).get('screen') === 'assessment' ? 'assessment' : new URLSearchParams(window.location.search).get('screen') === 'programs' ? 'programs' : 'frameworks')
   return <DesignShell screen={screen} onNavigate={setScreen}>
     {screen==='home' ? <HomeEmpty browseFrameworks={()=>setScreen('frameworks')}/>
-      :screen==='programs' ? <ProgramWorkspace openFrameworks={()=>setScreen('frameworks')}/>
+      :screen==='programs' ? <ProgramWorkspace openFrameworks={()=>setScreen('frameworks')} programId={new URLSearchParams(window.location.search).get('program_id')}/>
       :screen==='assessment' ? <AssessmentWorkspace openPrograms={()=>setScreen('programs')}/>
       :<FrameworkLibrary/>}
   </DesignShell>
