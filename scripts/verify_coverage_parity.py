@@ -21,6 +21,7 @@ BLOBS = {
     "internal/continuity/program_compliance_requirements.go": "e718b3eb79ece83abafde4bff65934d80d037f5c",
     "internal/continuity/program_compliance_requirements_test.go": "d4b7c03068e9c42eb45283e775beafd122784f85",
     "internal/continuity/program_compliance_policy_test.go": "d48e34e8d4c880e44fc5cc3a9592263a76d6af5f",
+    "internal/continuity/program_compliance_projection.go": "62d005b0de49a4a896640651f578246eceb9ed3f",
 }
 HELPERS = "internal/continuity/coverage_helpers.go"
 UPSTREAM_HELPERS = "internal/continuity/state.go"
@@ -55,6 +56,12 @@ def main() -> None:
             raise ValueError("coverage temporal/evidence helpers diverge from v1")
         if local.count("func ") != 3:
             raise ValueError("coverage helper file includes unexpected logic")
+        policy_source = (upstream / "internal/continuity/program_compliance_policy_lifecycle.go").read_text()
+        checksum_start = policy_source.index("func programCompliancePolicyChecksum(")
+        upstream_checksum = policy_source[checksum_start:].strip()
+        local_checksum = (ROOT / "internal/continuity/policy_checksum.go").read_text()
+        if upstream_checksum not in local_checksum or local_checksum.count("func ") != 1:
+            raise ValueError("approval-time policy checksum drifted from pinned v1")
     print("Pinned v1 coverage source and helper parity passed")
 
 
