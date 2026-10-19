@@ -31,7 +31,7 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run typecheck
-          node --test scripts/program-record.nodecheck.mjs scripts/approved-requirements.nodecheck.mjs
+          node --test scripts/program-record.nodecheck.mjs scripts/approved-requirements.nodecheck.mjs scripts/program-inventory.nodecheck.mjs
           npm run build
 
   program-postgres:
