@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -118,5 +117,5 @@ func (h Handler) ServeListHTTP(w http.ResponseWriter,r *http.Request) {
 	}
 	if page.Items==nil {page.Items=[]Record{}}
 	w.Header().Set("Content-Type","application/json; charset=utf-8")
-	if err:=json.NewEncoder(w).Encode(page);err!=nil {_=fmt.Errorf("encode page: %w",err)}
+	_ = json.NewEncoder(w).Encode(page)
 }

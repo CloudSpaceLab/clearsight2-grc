@@ -28,6 +28,7 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 	defer cancel()
 	if err := db.PingContext(ctx); err != nil { t.Fatal(err) }
 	if err := CheckSchema(ctx, db); err != nil { t.Fatal(err) }
+	if err := CheckOperationalSchema(ctx, db); err != nil { t.Fatalf("full v1 governance schema rejected: %v", err) }
 
 	exec := func(statement string, args ...any) {
 		t.Helper()

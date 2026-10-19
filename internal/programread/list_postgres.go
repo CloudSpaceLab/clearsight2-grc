@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+ "strings"
 	"time"
 
 	"github.com/CloudSpaceLab/clearsight2-grc/internal/identity"
@@ -44,7 +45,7 @@ LIMIT $7
 func (r *SQLRepository) ListVisible(ctx context.Context, actor identity.Actor, query ListQuery) (ListPage,error) {
 	if r==nil||r.db==nil {return ListPage{},errors.New("program repository unavailable")}
 	if err:=actor.Valid(time.Now().UTC());err!=nil{return ListPage{},err}
-	if actor.LegalEntityID=="*"||actor.Kind=="SERVICE" {
+	if actor.LegalEntityID=="*"||strings.EqualFold(actor.Kind,"SERVICE") {
 		return ListPage{},ErrNotFound
 	}
 	if query.Limit<1||query.Limit>maximumPageSize{return ListPage{},errors.New("invalid page size")}

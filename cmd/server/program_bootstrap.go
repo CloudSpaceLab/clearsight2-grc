@@ -80,6 +80,10 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 		_ = db.Close()
 		return nil, nil, err
 	}
+	if err := programread.CheckOperationalSchema(ctx, db); err != nil {
+		_ = db.Close()
+		return nil, nil, err
+	}
 	handler := programread.Handler{
 		Authenticator: signed,
 		Repository: programread.NewSQLRepository(db),
