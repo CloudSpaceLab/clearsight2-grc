@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "seed_revision": "2026-10-19.1",
+  "description": "Discovery metadata only; no embedded licensed standard text, interpretations, clause completeness, applicability decisions or compliance scores.",
+  "items": [
+    {
+      "id": "NG-NDPA-2023",
+      "title": "Nigeria Data Protection Act",
+      "edition": "2023",
+      "jurisdiction": "NG",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "Nigeria Data Protection Commission",
+      "source_url": "https://ndpc.gov.ng/resources/",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "NG-NDPA-GAID-2025",
+      "title": "NDP Act General Application and Implementation Directive",
+      "edition": "2025",
+      "jurisdiction": "NG",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "Nigeria Data Protection Commission",
+      "source_url": "https://ndpc.gov.ng/wp-content/uploads/2025/07/NDP-ACT-GAID-2025-MARCH-20TH.pdf",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "NG-CBN-CYBER-2024",
+      "title": "CBN Risk-Based Cybersecurity Framework for DMBs and PSBs",
+      "edition": "2024",
+      "jurisdiction": "NG",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "Central Bank of Nigeria",
+      "source_url": "https://www.cbn.gov.ng/Out/2024/BSD/CBN%20Risk-Based%20Cybersecurity%20Framework%20for%20DMBs%20and%20PSBs_2024.pdf",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "NG-PIA-2021",
+      "title": "Petroleum Industry Act",
+      "edition": "2021",
+      "jurisdiction": "NG",
+      "sectors": [
+        "oil-gas"
+      ],
+      "issuer": "Nigerian Upstream Petroleum Regulatory Commission",
+      "source_url": "https://www.nuprc.gov.ng/laws/acts/petroleum-industry-act",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "NG-UPSTREAM-SAFETY-2024",
+      "title": "Nigerian Upstream Petroleum Safety Regulations",
+      "edition": "2024",
+      "jurisdiction": "NG",
+      "sectors": [
+        "oil-gas"
+      ],
+      "issuer": "Nigerian Upstream Petroleum Regulatory Commission",
+      "source_url": "https://www.nuprc.gov.ng/laws/regulations/gazetted",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "NG-NCC-TELECOM",
+      "title": "Nigerian communications regulatory instruments",
+      "edition": "To verify",
+      "jurisdiction": "NG",
+      "sectors": [
+        "telecom"
+      ],
+      "issuer": "Nigerian Communications Commission",
+      "source_url": "https://www.ncc.gov.ng/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "KE-CBK-CYBER-2017",
+      "title": "CBK Guidance Note on Cybersecurity for the Banking Sector",
+      "edition": "2017",
+      "jurisdiction": "KE",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "Central Bank of Kenya",
+      "source_url": "https://www.centralbank.go.ke/policy-procedures/legislation-and-guidelines/",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "KE-CBK-PRUDENTIAL-2013",
+      "title": "CBK Prudential Guidelines",
+      "edition": "2013",
+      "jurisdiction": "KE",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "Central Bank of Kenya",
+      "source_url": "https://www.centralbank.go.ke/policy-procedures/legislation-and-guidelines/",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "KE-DPA-2019",
+      "title": "Kenya Data Protection Act",
+      "edition": "2019",
+      "jurisdiction": "KE",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "Office of the Data Protection Commissioner",
+      "source_url": "https://www.odpc.go.ke/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "KE-TELECOM",
+      "title": "Kenya communications regulatory instruments",
+      "edition": "To verify",
+      "jurisdiction": "KE",
+      "sectors": [
+        "telecom"
+      ],
+      "issuer": "Communications Authority of Kenya",
+      "source_url": "https://www.ca.go.ke/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "ZA-POPIA-2013",
+      "title": "Protection of Personal Information Act",
+      "edition": "2013",
+      "jurisdiction": "ZA",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "Information Regulator of South Africa",
+      "source_url": "https://www.gov.za/sites/default/files/gcis_document/201409/3706726-11act4of2013protectionofpersonalinforcorrect.pdf",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "ZA-FIN-CYBER-2024",
+      "title": "Joint Standard 2 of 2024 — Cybersecurity and Cyber Resilience",
+      "edition": "2024",
+      "jurisdiction": "ZA",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "Financial Sector Conduct Authority / Prudential Authority",
+      "source_url": "https://www.fsca.co.za/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "ZA-TELECOM",
+      "title": "South African electronic communications regulatory instruments",
+      "edition": "To verify",
+      "jurisdiction": "ZA",
+      "sectors": [
+        "telecom"
+      ],
+      "issuer": "Independent Communications Authority of South Africa",
+      "source_url": "https://www.icasa.org.za/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "GH-BOG-CYBER-2026",
+      "title": "Cyber and Information Security Directive",
+      "edition": "2026",
+      "jurisdiction": "GH",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "Bank of Ghana",
+      "source_url": "https://www.bog.gov.gh/reg_directives/cyber-and-information-security-directive-2026/",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "GH-DPA-2012",
+      "title": "Data Protection Act (Act 843)",
+      "edition": "2012",
+      "jurisdiction": "GH",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "Data Protection Commission Ghana",
+      "source_url": "https://www.dataprotection.org.gh/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "GH-TELECOM",
+      "title": "National Communications Authority regulatory instruments",
+      "edition": "To verify",
+      "jurisdiction": "GH",
+      "sectors": [
+        "telecom"
+      ],
+      "issuer": "National Communications Authority Ghana",
+      "source_url": "https://nca.org.gh/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "GH-PETROLEUM",
+      "title": "Petroleum sector laws and regulations",
+      "edition": "To verify",
+      "jurisdiction": "GH",
+      "sectors": [
+        "oil-gas"
+      ],
+      "issuer": "Petroleum Commission Ghana",
+      "source_url": "https://petrocom.gov.gh/",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "EU-GDPR-2016",
+      "title": "General Data Protection Regulation (EU) 2016/679",
+      "edition": "2016/679",
+      "jurisdiction": "EU",
+      "sectors": [
+        "privacy",
+        "cross-sector"
+      ],
+      "issuer": "European Union",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "EU-DORA-2022",
+      "title": "Digital Operational Resilience Act (EU) 2022/2554",
+      "edition": "2022/2554",
+      "jurisdiction": "EU",
+      "sectors": [
+        "banking",
+        "fintech"
+      ],
+      "issuer": "European Union",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2022/2554/oj",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "EU-NIS2-2022",
+      "title": "NIS2 Directive (EU) 2022/2555",
+      "edition": "2022/2555",
+      "jurisdiction": "EU",
+      "sectors": [
+        "telecom",
+        "cross-sector"
+      ],
+      "issuer": "European Union",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2022/2555/oj",
+      "source_status": "source_identified",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    },
+    {
+      "id": "EU-OFFSHORE-2013",
+      "title": "Directive 2013/30/EU — Safety of Offshore Oil and Gas Operations",
+      "edition": "2013/30/EU",
+      "jurisdiction": "EU",
+      "sectors": [
+        "oil-gas"
+      ],
+      "issuer": "European Union",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2013/30/oj",
+      "source_status": "verification_pending",
+      "content_status": "metadata_only",
+      "license": "link_only",
+      "requirements": []
+    }
+  ]
+}
