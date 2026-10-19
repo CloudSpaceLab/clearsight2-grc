@@ -1,6 +1,9 @@
 package continuity
 
-import "time"
+import (
+ "encoding/json"
+ "time"
+)
 
 // The canonical v1 evaluator is copied without modification. These are its
 // minimum source-fact types, preserving v1 field names and enum values.
@@ -116,4 +119,24 @@ type ProgramSourceState struct {
  Required int
  Current bool
  Known bool
+}
+
+
+// Exact fields consumed by the pinned v1 Matter access policy. These do not
+// introduce a separate Matter persistence model in ClearSight 2.
+type Matter struct {
+ TenantID string
+ Scope json.RawMessage
+ OwnerPrincipalID string
+}
+type ActionStatus string
+const ActionInProgress ActionStatus = "IN_PROGRESS"
+type Action struct {
+ ID string
+ OwnerPrincipalID string
+ Status ActionStatus
+}
+type MatterAggregate struct {
+ Matter Matter
+ Actions []Action
 }
