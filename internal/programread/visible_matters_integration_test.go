@@ -31,6 +31,7 @@ func TestPostgresActorVisibleMatterSnapshot(t *testing.T){
   {907,1,301,11,"ASSESSMENT",`{"access":"PUBLIC"}`,at.Add(3*time.Second)},
   {908,1,302,11,"TRIAGE",`{"access":"PUBLIC"}`,at},
   {909,2,304,22,"TRIAGE",`{"access":"PUBLIC"}`,at},
+  {910,1,301,12,"TRIAGE",`{"access":"PUBLIC"}`,at.Add(10*time.Second)},
  }
  for _,tc:=range cases{
   if _,err:=db.ExecContext(ctx,`INSERT INTO matters(id,tenant_id,legal_entity_id,status,scope,updated_at)
