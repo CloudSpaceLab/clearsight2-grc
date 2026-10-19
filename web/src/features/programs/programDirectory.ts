@@ -5,7 +5,9 @@ import type { ProgramRecord } from './programRecord'
 export type ProgramPage =
   | { status: 'loading' }
   | { status: 'ready'; items: ProgramRecord[]; nextCursor: string }
-  | { status: 'unauthenticated' | 'forbidden' | 'unavailable' }
+  | { status: 'unauthenticated' }
+  | { status: 'forbidden' }
+  | { status: 'unavailable' }
 
 const programUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
