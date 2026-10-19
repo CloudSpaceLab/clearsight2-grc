@@ -95,7 +95,7 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 			handler.ServeListHTTP(w, r.WithContext(queryCtx))
 			return
 		}
-		if r.URL.Path == "/api/v1/programs/"+r.PathValue("id")+"/requirements" {
+		if r.Pattern == "GET /api/v1/programs/{id}/requirements" {
 			handler.ServeRequirementsHTTP(w,r.WithContext(queryCtx))
 			return
 		}
