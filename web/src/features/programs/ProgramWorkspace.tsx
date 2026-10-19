@@ -27,7 +27,7 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
     setSection(target)
     tabRefs.current[next]?.focus()
   }
-  return <div className="program-page">
+  return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
       <Icon name="next"/><span>Workspace</span></nav>
     <header className="program-heading">
@@ -133,5 +133,5 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
             <p>Connect an authorized organization and select a Program.</p>
           </div>
         </section>}
-  </div>
+  </>
 }
