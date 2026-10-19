@@ -18,6 +18,8 @@ var errCoveragePopulationExceeded = errors.New("Program source population exceed
 type scopedCoverageSnapshot struct {
  Coverage map[string]continuity.RequirementCoverage
  SourceHealth continuity.ProgramSourceState
+ PolicyVerified *continuity.ProgramCompliancePolicyPosition
+ ProgramStatus continuity.ProgramStatus
 }
 
 // Retain the original private API for existing regression tests. It is never
@@ -49,6 +51,11 @@ func (r *SQLRepository) currentCoverageSnapshot(ctx context.Context,actor identi
   Program:continuity.Program{ID:program.ID,TenantID:program.TenantID},
  }
 
+ position,err:=loadVerifiedProgramPolicy(ctx,tx,actor.TenantID,actor.LegalEntityID,program.ID,at)
+ if err!=nil{return scopedCoverageSnapshot{},err}
+ source.Program.Status=position.Status
+ source.Program.CalculationPolicy=position.Position
+
  if err:=loadCoverageFacts(ctx,tx,actor.TenantID,program.ID,&source);err!=nil{return scopedCoverageSnapshot{},err}
  health,err:=loadProgramSourceHealth(ctx,tx,actor.TenantID,program.ID)
  if err!=nil{return scopedCoverageSnapshot{},err}
@@ -58,6 +65,8 @@ func (r *SQLRepository) currentCoverageSnapshot(ctx context.Context,actor identi
  return scopedCoverageSnapshot{
   Coverage:continuity.CurrentRequirementCoverage(source,at),
   SourceHealth:health,
+  PolicyVerified:position.Position,
+  ProgramStatus:position.Status,
  },nil
 }
 
