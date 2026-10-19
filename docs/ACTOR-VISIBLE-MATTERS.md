@@ -5,7 +5,7 @@ The private ClearSight 2 Program coverage snapshot now includes a **principal-vi
 ## Canonical source
 
 - `internal/continuity/access.go` and `access_test.go` were ported byte-for-byte from v1 commit `183336ed518cdc63ba05d9ab3f97b808d923c7ff`. CI checks their upstream Git blob hashes and exact files against pinned v1.
-- `internal/programread/visible_matters.go` adapts the current-state predicate from v1's `VisibleProgramMatterVisibility` PostgreSQL repository, using exact tenant, Program and authenticated principal parameters.
+- `internal/programread/visible_matters.go` adapts the current-state predicate from v1's `VisibleProgramMatterVisibility` PostgreSQL repository, using exact tenant, legal-entity, Program and authenticated principal parameters.
 - The current Program's **existing** signed-actor authorization, tenant/legal-entity and exact department scope runs first. The Matter visibility count is read in the same read-only repeatable-read transaction as canonical requirement/evidence source facts, verified policy and source health.
 - Scope with no explicit access is treated as internal **only after tenant and Program authorization**. Explicit `PUBLIC` and `INTERNAL` are visible. `RESTRICTED` requires a valid, nonempty string allow-list containing the current authenticated principal. Unknown/malformed access is denied.
 - Only open Matters contribute (`CLOSED` and `CANCELLED` excluded). DISTINCT protects against duplicate links; latest activity excludes invisible Matters.

@@ -18,24 +18,24 @@ func TestPostgresActorVisibleMatterSnapshot(t *testing.T){
  principal40:=fixtureUUID(40)
  principal41:=fixtureUUID(41)
  cases:=[]struct{
-  id,tenant,program int
+  id,tenant,program,entity int
   status,scope string
   updated time.Time
  }{
-  {901,1,301,"TRIAGE",`{"business_area":"Payments"}`,at},
-  {902,1,301,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal40+`"]}`,at.Add(time.Second)},
-  {903,1,301,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal41+`"]}`,at.Add(2*time.Second)},
-  {904,1,301,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal40+`",7]}`,at},
-  {905,1,301,"CLOSED",`{"access":"PUBLIC"}`,at},
-  {906,1,301,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":[]}`,at},
-  {907,1,301,"ASSESSMENT",`{"access":"PUBLIC"}`,at.Add(3*time.Second)},
-  {908,1,302,"TRIAGE",`{"access":"PUBLIC"}`,at},
-  {909,2,304,"TRIAGE",`{"access":"PUBLIC"}`,at},
+  {901,1,301,11,"TRIAGE",`{"business_area":"Payments"}`,at},
+  {902,1,301,11,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal40+`"]}`,at.Add(time.Second)},
+  {903,1,301,11,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal41+`"]}`,at.Add(2*time.Second)},
+  {904,1,301,11,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":["`+principal40+`",7]}`,at},
+  {905,1,301,11,"CLOSED",`{"access":"PUBLIC"}`,at},
+  {906,1,301,11,"TRIAGE",`{"access":"RESTRICTED","allowed_principal_ids":[]}`,at},
+  {907,1,301,11,"ASSESSMENT",`{"access":"PUBLIC"}`,at.Add(3*time.Second)},
+  {908,1,302,11,"TRIAGE",`{"access":"PUBLIC"}`,at},
+  {909,2,304,22,"TRIAGE",`{"access":"PUBLIC"}`,at},
  }
  for _,tc:=range cases{
-  if _,err:=db.ExecContext(ctx,`INSERT INTO matters(id,tenant_id,status,scope,updated_at)
- VALUES($1::uuid,$2::uuid,$3,$4::jsonb,$5)`,fixtureUUID(tc.id),
-   fixtureUUID(tc.tenant),tc.status,tc.scope,tc.updated);err!=nil{t.Fatal(err)}
+  if _,err:=db.ExecContext(ctx,`INSERT INTO matters(id,tenant_id,legal_entity_id,status,scope,updated_at)
+ VALUES($1::uuid,$2::uuid,$6::uuid,$3,$4::jsonb,$5)`,fixtureUUID(tc.id),
+   fixtureUUID(tc.tenant),tc.status,tc.scope,tc.updated,fixtureUUID(tc.entity));err!=nil{t.Fatal(err)}
   if _,err:=db.ExecContext(ctx,`INSERT INTO matter_links(tenant_id,matter_id,program_id)
  VALUES($1::uuid,$2::uuid,$3::uuid)`,fixtureUUID(tc.tenant),
    fixtureUUID(tc.id),fixtureUUID(tc.program));err!=nil{t.Fatal(err)}

@@ -44,7 +44,7 @@ CREATE TABLE continuity_events (
  actor_type text NOT NULL, actor_id uuid, occurred_at timestamptz NOT NULL
 );
 CREATE TABLE matters (
- id uuid PRIMARY KEY, tenant_id uuid NOT NULL,
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, legal_entity_id uuid NOT NULL,
  status text NOT NULL, scope jsonb NOT NULL DEFAULT '{}'::jsonb,
  updated_at timestamptz NOT NULL
 );

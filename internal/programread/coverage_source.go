@@ -60,7 +60,7 @@ func (r *SQLRepository) currentCoverageSnapshot(ctx context.Context,actor identi
  if err:=loadCoverageFacts(ctx,tx,actor.TenantID,program.ID,&source);err!=nil{return scopedCoverageSnapshot{},err}
  health,err:=loadProgramSourceHealth(ctx,tx,actor.TenantID,program.ID)
  if err!=nil{return scopedCoverageSnapshot{},err}
- matters,err:=loadVisibleProgramMatters(ctx,tx,actor.TenantID,program.ID,actor.PrincipalID)
+ matters,err:=loadVisibleProgramMatters(ctx,tx,actor.TenantID,program.ID,actor.PrincipalID,actor.LegalEntityID)
  if err!=nil{return scopedCoverageSnapshot{},err}
  // It is critical that no caller can observe results from an incomplete
  // source read. Every query and transaction must succeed before evaluation.
