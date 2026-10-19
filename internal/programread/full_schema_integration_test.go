@@ -140,4 +140,17 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 		}
 	}
 
+	// Validate the canonical evaluator loader against the complete pinned
+	// production schema, not only the disposable read-contract fixtures.
+	if err:=CheckCoverageSourceSchema(ctx,db);err!=nil{
+		t.Fatalf("full v1 coverage source schema mismatch: %v",err)
+	}
+	coverage,err:=reader.currentCoverage(ctx,permitted,fixtureUUID(1301))
+	if err!=nil||len(coverage)!=1||coverage[fixtureUUID(1401)].Complete{
+		t.Fatalf("unknown applicability must never become compliance: %+v %v",coverage,err)
+	}
+	if _,err:=reader.currentCoverage(ctx,permitted,fixtureUUID(1303));!errors.Is(err,ErrNotFound){
+		t.Fatalf("cross-tenant canonical source read was not denied: %v",err)
+	}
+
 }
