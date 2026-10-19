@@ -2,11 +2,11 @@ import type { ReactNode } from 'react'
 import { Icon } from './Icons'
 import type { IconKey } from './Icons'
 
-export type Screen = 'frameworks' | 'home'
+export type Screen = 'frameworks' | 'home' | 'programs'
 const nav:{label:string;icon:IconKey;screen?:Screen}[]=[
   {label:'Home',icon:'home',screen:'home'},
   {label:'Frameworks',icon:'layers',screen:'frameworks'},
-  {label:'Programs',icon:'grid'},{label:'Forms',icon:'form'},
+  {label:'Programs',icon:'grid',screen:'programs'},{label:'Forms',icon:'form'},
   {label:'Vendors',icon:'users'},{label:'Risk & Losses',icon:'shield'},
   {label:'Privacy',icon:'lock'},{label:'Reports',icon:'chart'}
 ]
