@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import './program.css'
+import './program-live.css'
 import { useProgramMetadata } from './useProgramMetadata'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
