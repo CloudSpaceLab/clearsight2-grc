@@ -54,7 +54,12 @@ export function useProgramDirectory(enabled: boolean) {
   const [page, setPage] = useState<ProgramPage>({ status: 'loading' })
 
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) {
+      setCursor('')
+      setHistory([])
+      setPage({ status: 'loading' })
+      return
+    }
     const controller = new AbortController()
     setPage({ status: 'loading' })
     void fetchProgramPage(cursor, controller.signal).then(result => {
@@ -68,11 +73,13 @@ export function useProgramDirectory(enabled: boolean) {
     hasPrevious: history.length > 0,
     previous() {
       if (history.length === 0) return
+      setPage({ status: 'loading' })
       setCursor(history[history.length - 1] ?? '')
       setHistory(paths => paths.slice(0, -1))
     },
     next() {
       if (page.status !== 'ready' || !page.nextCursor || page.nextCursor === cursor) return
+      setPage({ status: 'loading' })
       setHistory(paths => [...paths, cursor])
       setCursor(page.nextCursor)
     },
