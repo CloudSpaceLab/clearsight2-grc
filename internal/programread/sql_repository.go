@@ -134,10 +134,12 @@ func getVisible(ctx context.Context, q programQuerier, actor identity.Actor, id 
 	if err != nil {
 		return Record{}, fmt.Errorf("read scoped program: %w", err)
 	}
-	if version < 1 || json.Unmarshal([]byte(pathJSON), &p.DepartmentPath) != nil ||
-		!visibleToActor(actor, id, p) {
+	if version < 1 || json.Unmarshal([]byte(pathJSON), &p.DepartmentPath) != nil {
 		return Record{}, errors.New("invalid actor-scoped program projection")
 	}
 	p.SourceRevision = strconv.FormatInt(version, 10)
+	if !visibleToActor(actor, id, p) {
+		return Record{}, errors.New("invalid actor-scoped program projection")
+	}
 	return p, nil
 }
