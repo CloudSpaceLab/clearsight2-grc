@@ -22,7 +22,9 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
       : event.key==='Home' ? 0 : event.key==='End' ? sections.length-1 : -1
     if(next<0)return
     event.preventDefault()
-    setSection(sections[next])
+    const target = sections[next]
+    if (!target) return
+    setSection(target)
     tabRefs.current[next]?.focus()
   }
   return <div className="program-page">
