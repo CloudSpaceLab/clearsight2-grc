@@ -68,6 +68,18 @@ jobs:
                 --screenshot="$PWD/screenshots/$kind-$width.png" "$url" > /dev/null 2>&1
             done
           done
+          "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --no-first-run --virtual-time-budget=5000 \
+            --user-data-dir="$RUNNER_TEMP/chrome-dom-framework" --dump-dom \
+            "http://127.0.0.1:4173/" > "$RUNNER_TEMP/framework-dom.html" 2>/dev/null
+          "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --no-first-run --virtual-time-budget=5000 \
+            --user-data-dir="$RUNNER_TEMP/chrome-dom-program" --dump-dom \
+            "http://127.0.0.1:4173/?screen=programs" > "$RUNNER_TEMP/program-dom.html" 2>/dev/null
+          grep -q 'class="framework-row' "$RUNNER_TEMP/framework-dom.html"
+          grep -q 'class="detail-card"' "$RUNNER_TEMP/framework-dom.html"
+          grep -q 'program-panel-overview' "$RUNNER_TEMP/program-dom.html"
+          grep -q 'Coverage unavailable' "$RUNNER_TEMP/program-dom.html"
           python3 - <<'PY'
           from pathlib import Path
           import struct
