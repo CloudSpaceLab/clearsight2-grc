@@ -1,0 +1,73 @@
+name: design-visual-review
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  framework-screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install locked web dependencies
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+      - name: Start real API, web UI and approved HTML source
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup go run ./cmd/server > "$RUNNER_TEMP/catalog.log" 2>&1 &
+          (cd web && nohup npm run dev -- --host 127.0.0.1 --port 4173 --strictPort > "$RUNNER_TEMP/vite.log" 2>&1) &
+          nohup python3 -m http.server 4174 --bind 127.0.0.1 \
+            --directory docs/design/references/clearsight-2026-10/source/clearsight-framework-designs \
+            > "$RUNNER_TEMP/design.log" 2>&1 &
+          for address in http://127.0.0.1:8080/api/v1/frameworks \
+                         http://127.0.0.1:4173/ http://127.0.0.1:4174/framework-library.html; do
+            curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused "$address" > /dev/null
+          done
+      - name: Capture design and application
+        shell: bash
+        run: |
+          set -euo pipefail
+          browser="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$browser" ]; then echo "Chrome required for visual review" >&2; exit 1; fi
+          mkdir -p screenshots
+          for width in 390 768 1024 1280 1440; do
+            for kind in reference implementation; do
+              url="http://127.0.0.1:4174/framework-library.html"
+              if [ "$kind" = "implementation" ]; then url="http://127.0.0.1:4173/"; fi
+              "$browser" --headless=new --no-sandbox --disable-gpu \
+                --disable-dev-shm-usage --hide-scrollbars --no-first-run \
+                --force-device-scale-factor=1 --virtual-time-budget=5000 \
+                --user-data-dir="$RUNNER_TEMP/chrome-$width-$kind" \
+                --window-size="$width,900" \
+                --screenshot="$PWD/screenshots/$kind-$width.png" "$url" > /dev/null 2>&1
+            done
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          expected = {390,768,1024,1280,1440}
+          shots = sorted(Path("screenshots").glob("*.png"))
+          assert len(shots) == 2 * len(expected), f"Expected 10 captures, got {len(shots)}"
+          for p in shots:
+              raw = p.read_bytes()
+              assert raw[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid capture: {p}"
+              width, height = struct.unpack(">II",raw[16:24])
+              assert width > 0 and height > 0, f"Empty capture: {p}"
+              print(f"{p}: {width}x{height}")
+          PY
+      - name: Upload side-by-side review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: framework-design-review
+          path: screenshots/
+          if-no-files-found: warn
+          retention-days: 7
