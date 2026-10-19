@@ -5,6 +5,8 @@ on:
       - 'schema/**'
       - 'scripts/rehearse_v1_migrations.py'
       - 'internal/programread/**'
+      - 'internal/continuity/**'
+      - 'scripts/verify_coverage_parity.py'
       - 'go.mod'
       - 'go.sum'
       - '.github/workflows/v1-schema-compatibility.yml'
@@ -42,6 +44,8 @@ jobs:
           ref: 183336ed518cdc63ba05d9ab3f97b808d923c7ff
           path: .upstream/clearsight-grc
           persist-credentials: false
+      - name: Verify pinned coverage evaluator parity
+        run: python3 scripts/verify_coverage_parity.py .upstream/clearsight-grc
       - name: Verify PostgreSQL client
         run: psql --version
       - name: Apply complete pinned migration sequence
