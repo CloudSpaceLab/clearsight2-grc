@@ -39,6 +39,7 @@ const maxCoverageFactsPerTable = 5000
 var coverageSourceQueries = [...]string{
  coverageRequirementsSQL,coverageApplicabilitySQL,coverageControlsSQL,
  coverageLinksSQL,coverageContractsSQL,coverageAssessmentsSQL,
+ coverageSourceHealthSQL,
 }
 
 // CheckCoverageSourceSchema is an independent, opt-in gate for the *internal*
