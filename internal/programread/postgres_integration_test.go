@@ -39,7 +39,7 @@ CREATE TABLE programs (
 );
 CREATE TABLE program_requirements (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
- code text NOT NULL, title text NOT NULL, version bigint NOT NULL,
+ code text NOT NULL, title text NOT NULL, version bigint NOT NULL, source_id uuid,
  status text NOT NULL, effective_from timestamptz NOT NULL, effective_until timestamptz
 );
 CREATE TABLE program_applicability (
@@ -63,6 +63,13 @@ CREATE TABLE evidence_contracts (
  updated_at timestamptz NOT NULL,
  freshness_minutes integer NOT NULL DEFAULT 60,
  minimum_coverage numeric(6,5) NOT NULL DEFAULT 0.9
+);
+CREATE TABLE evidence_sources (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, status text NOT NULL, health text NOT NULL
+);
+CREATE TABLE evidence_contract_sources (
+ tenant_id uuid NOT NULL, program_id uuid NOT NULL, contract_id uuid NOT NULL,
+ source_id uuid NOT NULL
 );
 CREATE TABLE evidence_assessments (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
