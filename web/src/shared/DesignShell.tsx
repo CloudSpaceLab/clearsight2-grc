@@ -2,11 +2,11 @@ import type { ReactNode } from 'react'
 import { Icon } from './Icons'
 import type { IconKey } from './Icons'
 
-export type Screen = 'frameworks' | 'home' | 'programs'
+export type Screen = 'frameworks' | 'home' | 'programs' | 'assessment'
 const nav:{label:string;icon:IconKey;screen?:Screen}[]=[
   {label:'Home',icon:'home',screen:'home'},
   {label:'Frameworks',icon:'layers',screen:'frameworks'},
-  {label:'Programs',icon:'grid',screen:'programs'},{label:'Forms',icon:'form'},
+  {label:'Programs',icon:'grid',screen:'programs'},{label:'Forms',icon:'form',screen:'assessment'},
   {label:'Vendors',icon:'users'},{label:'Risk & Losses',icon:'shield'},
   {label:'Privacy',icon:'lock'},{label:'Reports',icon:'chart'}
 ]
@@ -39,7 +39,7 @@ export function DesignShell({screen,onNavigate,children}:{screen:Screen;onNaviga
         <button className="top-icon" type="button" disabled aria-label="Notifications unavailable"><Icon name="bell"/></button>
         <div className="profile"><div className="avatar">—</div><div><strong>Not signed in</strong><small>Foundation preview</small></div></div>
       </header>
-      <main className={screen==='programs' ? 'content program-page' : 'content'} id="content">{children}</main>
+      <main className={screen==='programs' ? 'content program-page' : screen==='assessment' ? 'content assessment-page' : 'content'} id="content">{children}</main>
     </div>
   </div>
 }

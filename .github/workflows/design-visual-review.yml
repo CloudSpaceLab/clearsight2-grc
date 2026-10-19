@@ -30,9 +30,13 @@ jobs:
           nohup python3 -m http.server 4175 --bind 127.0.0.1 \
             --directory docs/design/references/clearsight-2026-10/source/clearsight-program-designs \
             > "$RUNNER_TEMP/program-design.log" 2>&1 &
+          nohup python3 -m http.server 4176 --bind 127.0.0.1 \
+            --directory docs/design/references/clearsight-2026-10/source/clearsight-designs-01-05 \
+            > "$RUNNER_TEMP/assessment-design.log" 2>&1 &
           for address in http://127.0.0.1:8080/api/v1/frameworks \
                          http://127.0.0.1:4173/ http://127.0.0.1:4174/framework-library.html \
-                         http://127.0.0.1:4175/program-workspace-preview.html; do
+                         http://127.0.0.1:4175/program-workspace-preview.html \
+                         http://127.0.0.1:4176/assessment-workspace-preview.html; do
             curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused "$address" > /dev/null
           done
       - name: Capture design and application
@@ -72,20 +76,40 @@ jobs:
             --no-first-run --virtual-time-budget=5000 \
             --user-data-dir="$RUNNER_TEMP/chrome-dom-framework" --dump-dom \
             "http://127.0.0.1:4173/" > "$RUNNER_TEMP/framework-dom.html" 2>/dev/null
+          for width in 390 768 1024 1280 1440; do
+            for kind in assessment-reference assessment-implementation; do
+              url="http://127.0.0.1:4176/assessment-workspace-preview.html"
+              if [ "$kind" = "assessment-implementation" ]; then
+                url="http://127.0.0.1:4173/?screen=assessment"
+              fi
+              "$browser" --headless=new --no-sandbox --disable-gpu \
+                --disable-dev-shm-usage --hide-scrollbars --no-first-run \
+                --force-device-scale-factor=1 --virtual-time-budget=5000 \
+                --user-data-dir="$RUNNER_TEMP/chrome-$width-$kind" \
+                --window-size="$width,900" \
+                --screenshot="$PWD/screenshots/$kind-$width.png" "$url" > /dev/null 2>&1
+            done
+          done
           "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
             --no-first-run --virtual-time-budget=5000 \
             --user-data-dir="$RUNNER_TEMP/chrome-dom-program" --dump-dom \
             "http://127.0.0.1:4173/?screen=programs" > "$RUNNER_TEMP/program-dom.html" 2>/dev/null
+          "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
+            --no-first-run --virtual-time-budget=5000 \
+            --user-data-dir="$RUNNER_TEMP/chrome-dom-assessment" --dump-dom \
+            "http://127.0.0.1:4173/?screen=assessment" > "$RUNNER_TEMP/assessment-dom.html" 2>/dev/null
           grep -q 'class="framework-row' "$RUNNER_TEMP/framework-dom.html"
           grep -q 'class="detail-card"' "$RUNNER_TEMP/framework-dom.html"
           grep -q 'program-panel-overview' "$RUNNER_TEMP/program-dom.html"
           grep -q 'Coverage unavailable' "$RUNNER_TEMP/program-dom.html"
+          grep -q 'assessment-view-questions' "$RUNNER_TEMP/assessment-dom.html"
+          grep -q 'No authorized questions' "$RUNNER_TEMP/assessment-dom.html"
           python3 - <<'PY'
           from pathlib import Path
           import struct
           expected = {390,768,1024,1280,1440}
           shots = sorted(Path("screenshots").glob("*.png"))
-          assert len(shots) == 4 * len(expected), f"Expected 20 captures, got {len(shots)}"
+          assert len(shots) == 6 * len(expected), f"Expected 30 captures, got {len(shots)}"
           for p in shots:
               raw = p.read_bytes()
               assert raw[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid capture: {p}"

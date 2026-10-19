@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import type { KeyboardEvent } from 'react'
+import { useState } from 'react'
+import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import './program.css'
 
@@ -14,19 +14,7 @@ const metrics = [
 
 export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
   const [section,setSection]=useState<Section>('Overview')
-  const tabRefs=useRef<(HTMLButtonElement|null)[]>([])
-  function onTabsKeyDown(event:KeyboardEvent<HTMLDivElement>){
-    const i=sections.indexOf(section)
-    const next=event.key==='ArrowRight' ? (i+1)%sections.length
-      : event.key==='ArrowLeft' ? (i+sections.length-1)%sections.length
-      : event.key==='Home' ? 0 : event.key==='End' ? sections.length-1 : -1
-    if(next<0)return
-    event.preventDefault()
-    const target = sections[next]
-    if (!target) return
-    setSection(target)
-    tabRefs.current[next]?.focus()
-  }
+  const tabs=useWorkspaceTabs(sections,section,setSection)
   return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
       <Icon name="next"/><span>Workspace</span></nav>
@@ -47,10 +35,10 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
           <Icon name="plus"/>New assessment</button>
       </div>
     </header>
-    <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={onTabsKeyDown}>
+    <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={tabs.onKeyDown}>
       {sections.map((name,i)=><button key={name} type="button" role="tab"
         id={'program-tab-'+name.toLowerCase()}
-        ref={element=>{tabRefs.current[i]=element}}
+        ref={tabs.refAt(i)}
         aria-selected={section===name}
         aria-controls={'program-panel-'+name.toLowerCase()}
         tabIndex={section===name?0:-1}
