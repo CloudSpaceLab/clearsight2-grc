@@ -24,6 +24,17 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
 	return &SQLRepository{db: db}
 }
 
+ // CheckSchema verifies the v1 read query can be prepared against the selected
+ // PostgreSQL schema before the Program route is activated. It does not prove
+ // migration completeness, grant authorization or access customer records.
+ func CheckSchema(ctx context.Context, db *sql.DB) error {
+  if db == nil { return errors.New("program database is unavailable") }
+  statement, err := db.PrepareContext(ctx, visibleProgramSQL)
+  if err != nil { return fmt.Errorf("program schema is incompatible: %w", err) }
+  if err := statement.Close(); err != nil { return fmt.Errorf("close program schema check: %w", err) }
+  return nil
+ }
+
 // The authorization predicate is evaluated by PostgreSQL BEFORE retrieving a row.
 // A scoped actor cannot retrieve organization-wide or unassigned Programs.
 // Department grants match the exact normalized path, without implicit inheritance.
