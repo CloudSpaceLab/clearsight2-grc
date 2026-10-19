@@ -13,7 +13,9 @@ for term in ("program-heading","workspace-tabs","metric-grid","dashboard-grid",
              "coverage-surface","assessments-surface","actions-surface",
              "links-surface","assist-surface"):
     assert term in markup, f"Missing approved composition: {term}"
-assert "No authorized Program data" in markup
+assert "useProgramRecord(programId)" in markup, "Program view must use authorized data state"
+assert "Operational metrics unavailable" in markup, "Unapproved metrics must remain unavailable"
+assert "No Program selected" in markup, "No selection must not imply customer data"
 assert "34 <span>/ 52" not in markup
 assert "New assessment" in markup
 print("Program approved style/structure guard passed (no visual/operational parity claim)")
