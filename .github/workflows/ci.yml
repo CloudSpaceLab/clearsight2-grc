@@ -16,6 +16,7 @@ jobs:
       - run: python3 scripts/verify_design_references.py
       - run: python3 scripts/verify_framework_parity.py
       - run: python3 scripts/verify_program_parity.py
+      - run: python3 scripts/verify_assessment_parity.py
       - run: go test ./...
       - run: go vet ./...
   web:

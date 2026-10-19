@@ -16,7 +16,7 @@ Updated: 2026-10-19. Applies only to v2; no claim of v1 UI parity or production 
 | Framework Library | `clearsight-framework-designs` | **Live metadata + approved two-column composition**, pending visual review | Verified editions, adopted/updated views, API-backed governance |
 | Framework Adoption | `clearsight-framework-designs` / `clearsight-designs-01-05` | Not implemented | Actor-bound edition/requirement review, maker-checker |
 | Program Workspace | `clearsight-program-designs` | Approved layout, tabs and no-data state implemented; real Program reads/actions pending | Scope, program/requirement state, approved calculation |
-| Assessment Workspace | `clearsight-designs-01-05` | Not implemented | Forms/response revision, assessor ownership, evidence |
+| Assessment Workspace | `clearsight-designs-01-05` | Approved three-pane shell, keyboard tabs and honest empty states; visual review pending | Forms/response revision, assessor ownership, evidence |
 | Vendor Management | `clearsight-vendor-management-designs` | Not implemented | Third-party identity, forms, scoped access |
 | Operational Risk | `clearsight-operational-risk-designs` | Not implemented | Risk/loss/RCSA/KRI canonical owner and period model |
 | Privacy / Data | `clearsight-privacy-data-designs` | Not implemented | ROPA/DPIA records, approved scopes |
