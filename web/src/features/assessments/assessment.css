@@ -26,3 +26,6 @@ body{background:#f5f8fd}.assessment-page{padding:28px 34px 70px;max-width:1940px
 .assessment-page .mode-tab[aria-selected=true]{font-weight:760}
 .assessment-page .import-view .drop-zone.unavailable{cursor:not-allowed;opacity:.7}
 .assessment-page .review-actions .button:disabled,.assessment-page .button:disabled{transform:none}
+
+.assessment-page .assessment-breadcrumb{border:0;background:none;padding:0;color:#6185b6;font:inherit;cursor:pointer}
+.assessment-page .assessment-breadcrumb:hover{text-decoration:underline}
