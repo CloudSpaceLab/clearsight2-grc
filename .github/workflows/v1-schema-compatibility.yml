@@ -1,0 +1,53 @@
+name: v1-schema-compatibility
+on:
+  pull_request:
+    paths:
+      - 'schema/**'
+      - 'scripts/rehearse_v1_migrations.py'
+      - 'internal/programread/**'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/v1-schema-compatibility.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-migration-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: clearsight_test
+          POSTGRES_PASSWORD: local_ci_only
+          POSTGRES_DB: clearsight_full_schema
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U clearsight_test -d clearsight_full_schema"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CLEARSIGHT_TEST_UPSTREAM_DSN: postgres://clearsight_test:local_ci_only@127.0.0.1:5432/clearsight_full_schema?sslmode=disable
+    steps:
+      - name: Checkout v2
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Fetch pinned v1 migrations
+        uses: actions/checkout@v4
+        with:
+          repository: CloudSpaceLab/clearsight-grc
+          ref: 183336ed518cdc63ba05d9ab3f97b808d923c7ff
+          path: .upstream/clearsight-grc
+          persist-credentials: false
+      - name: Verify PostgreSQL client
+        run: psql --version
+      - name: Apply complete pinned migration sequence
+        run: python3 scripts/rehearse_v1_migrations.py .upstream/clearsight-grc
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Check actor-scoped reads on migrated schema
+        run: go test -mod=readonly -tags=postgres -run '^TestPinnedV1CompleteSchemaActorScope$' -count=1 -timeout=2m ./internal/programread
