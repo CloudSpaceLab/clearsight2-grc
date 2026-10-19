@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import { useProgramRecord } from './programRecord'
+import { useProgramDirectory } from './programDirectory'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -13,7 +14,8 @@ const metrics = [
   { label:'Evidence to review', icon:'form', suffix:'items' },
 ] as const
 
-export function ProgramWorkspace({openFrameworks,programId}:{openFrameworks:()=>void;programId:string|null}){
+export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{openFrameworks:()=>void;programId:string|null;onSelectProgram:(id:string)=>void}){
+  const directory = useProgramDirectory(programId === null)
   const [program, retry] = useProgramRecord(programId)
   const record = program.status === 'ready' ? program.record : null
   const programMessage = program.status === 'loading' ? 'Loading Program…'
@@ -48,6 +50,30 @@ export function ProgramWorkspace({openFrameworks,programId}:{openFrameworks:()=>
       Program data could not be retrieved. <button type="button" className="text-link" onClick={retry}>Retry</button>
     </div>}
     {record && <p className="program-context-empty">Updated {new Date(record.updated_at).toLocaleString()} · Compliance and assessment data require separate authorized projections.</p>}
+    {!programId && <section className="surface program-directory" aria-label="Available Programs">
+      <div className="section-title-row">
+        <div><h2>Programs</h2><p>Only Programs available to your organization and access scope are listed.</p></div>
+        {directory.page.status === 'unavailable' &&
+          <button type="button" className="text-link" onClick={directory.retry}>Retry</button>}
+      </div>
+      {directory.page.status === 'loading' ? <p role="status" className="program-directory-message">Loading Programs…</p>
+        : directory.page.status === 'unauthenticated' ? <p role="status" className="program-directory-message">Sign in to view Programs.</p>
+        : directory.page.status === 'forbidden' ? <p role="status" className="program-directory-message">Access denied.</p>
+        : directory.page.status === 'unavailable' ? <p role="alert" className="program-directory-message">Program list unavailable.</p>
+        : directory.page.items.length === 0 ? <p role="status" className="program-directory-message">No Programs in your permitted scope.</p>
+        : <div role="list" className="program-directory-list">
+          {directory.page.items.map(item => <div role="listitem" key={item.id}>
+            <button className="program-directory-entry" type="button" onClick={() => onSelectProgram(item.id)}>
+              <span><strong>{item.name}</strong><small>Updated {new Date(item.updated_at).toLocaleDateString()}</small></span>
+              <span className="program-directory-open">Open <Icon name="next"/></span>
+            </button>
+          </div>)}
+        </div>}
+      {directory.page.status === 'ready' && (directory.hasPrevious || directory.page.nextCursor) && <nav className="program-directory-pagination" aria-label="Program pages">
+        <button type="button" className="button" onClick={directory.previous} disabled={!directory.hasPrevious}>Previous</button>
+        <button type="button" className="button" onClick={directory.next} disabled={!directory.page.nextCursor}>Next</button>
+      </nav>}
+    </section>}
     <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={tabs.onKeyDown}>
       {sections.map((name,i)=><button key={name} type="button" role="tab"
         id={'program-tab-'+name.toLowerCase()}
