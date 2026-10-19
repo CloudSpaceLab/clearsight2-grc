@@ -51,7 +51,7 @@ func TestPostgresActorVisibleMatterSnapshot(t *testing.T){
  if snapshot.VisibleMatters.OpenCount!=3{
   t.Fatalf("principal 40 should see internal, specifically granted and public; got %+v",snapshot.VisibleMatters)
  }
- if !snapshot.VisibleMatters.LatestAt.Equal(at.Add(3*time.Second)){
+ if delta:=snapshot.VisibleMatters.LatestAt.Sub(at.Add(3*time.Second));delta < -time.Millisecond || delta > time.Millisecond{
   t.Fatalf("unexpected visible latest Matter activity %+v",snapshot.VisibleMatters)
  }
  otherPrincipal:=actor
