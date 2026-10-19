@@ -1,0 +1,16 @@
+/* Runtime read states, separate from the pinned approved design stylesheet. */
+.program-page .program-record-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: -4px 0 16px;
+  padding: 10px 14px;
+  border: 1px solid #dfe9f7;
+  border-radius: 9px;
+  background: #f8fbff;
+  color: #385576;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.program-page .program-record-status .text-link { margin-left: auto; }
