@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
+import { useProgramRecord } from './programRecord'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -12,7 +13,15 @@ const metrics = [
   { label:'Evidence to review', icon:'form', suffix:'items' },
 ] as const
 
-export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
+export function ProgramWorkspace({openFrameworks,programId}:{openFrameworks:()=>void;programId:string|null}){
+  const [program, retry] = useProgramRecord(programId)
+  const record = program.status === 'ready' ? program.record : null
+  const programMessage = program.status === 'loading' ? 'Loading Program…'
+    : program.status === 'unauthenticated' ? 'Sign in required'
+    : program.status === 'forbidden' ? 'Access denied'
+    : program.status === 'not_found' ? 'Program unavailable'
+    : program.status === 'unavailable' ? 'Unable to load Program'
+    : 'No Program selected'
   const [section,setSection]=useState<Section>('Overview')
   const tabs=useWorkspaceTabs(sections,section,setSection)
   return <>
@@ -21,20 +30,24 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
     <header className="program-heading">
       <div className="heading-copy">
         <div className="eyebrow">PROGRAMS <span className="eyebrow-dot">·</span> WORKSPACE</div>
-        <h1>Program workspace</h1>
-        <p>Select a Program to review requirements, assessments and evidence.</p>
-        <div className="heading-meta"><span className="status program-status">No Program selected</span>
-          <span>Organization <strong>Not connected</strong></span></div>
+        <h1>{record?.name ?? 'Program workspace'}</h1>
+        <p>{record ? 'Program details' : 'Select a Program to review requirements, assessments and evidence.'}</p>
+        <div className="heading-meta"><span className="status program-status" role="status">{record ? "Program loaded" : programMessage}</span>
+          <span>{record ? "Record revision" : "Organization"} <strong>{record?.source_revision ?? "Not connected"}</strong></span></div>
       </div>
       <svg className="mountains" viewBox="0 0 700 200" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="mount1" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#b5e3ff" stopOpacity="0"/><stop offset="1" stopColor="#a4d4ff" stopOpacity=".55"/></linearGradient><linearGradient id="mount2" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#6dc2fb" stopOpacity="0"/><stop offset="1" stopColor="#77bfff" stopOpacity=".33"/></linearGradient></defs><path fill="url(#mount1)" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/><path fill="url(#mount2)" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/></svg>
       <div className="heading-tools">
-        <span className="prototype-tag"><Icon name="info"/>No authorized Program data</span>
+        <span className="prototype-tag"><Icon name="info"/>{record ? "Operational metrics unavailable" : programMessage}</span>
         <div className="period-switch"><label htmlFor="program-period">Activity period</label>
           <select id="program-period" aria-label="Activity period" disabled><option>Last 90 days</option></select></div>
         <button className="button primary" disabled type="button" title="Requires an authorized Program">
           <Icon name="plus"/>New assessment</button>
       </div>
     </header>
+    {program.status === 'unavailable' && <div role="alert" className="program-context-empty">
+      Program data could not be retrieved. <button type="button" className="text-link" onClick={retry}>Retry</button>
+    </div>}
+    {record && <p className="program-context-empty">Updated {new Date(record.updated_at).toLocaleString()} · Compliance and assessment data require separate authorized projections.</p>}
     <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={tabs.onKeyDown}>
       {sections.map((name,i)=><button key={name} type="button" role="tab"
         id={'program-tab-'+name.toLowerCase()}
