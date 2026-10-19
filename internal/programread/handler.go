@@ -45,27 +45,8 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
     return
   }
-  if h.Authenticator == nil {
-    http.Error(w, "identity service unavailable", http.StatusServiceUnavailable)
-    return
-  }
-  actor, present, err := h.Authenticator.Authenticate(r)
-  if err != nil || !present {
-    http.Error(w, "sign-in required", http.StatusUnauthorized)
-    return
-  }
-  now := time.Now().UTC()
-  if h.Now != nil { now = h.Now().UTC() }
-  if actor.Valid(now) != nil {
-    http.Error(w, "sign-in required", http.StatusUnauthorized)
-    return
-  }
-  if actor.LegalEntityID == "*" || strings.EqualFold(actor.Kind,"SERVICE") ||
-    (!identity.HasPermission(actor, identity.PermissionOversightRead) &&
-      !hasScopedReadGrant(actor)) {
-    http.Error(w, "access denied", http.StatusForbidden)
-    return
-  }
+  actor,ok:=h.authorizedActor(w,r)
+  if !ok{return}
   id := strings.TrimSpace(r.PathValue("id"))
   if id == "" || len(id) > 128 || strings.ContainsAny(id, "/\\") || strings.ContainsAny(id, "\r\n\t") {
     http.Error(w, "program not found", http.StatusNotFound)
@@ -114,4 +95,28 @@ func visibleToActor(actor identity.Actor, id string, p Record) bool {
   }
   return len(p.DepartmentPath) > 0 &&
     identity.HasDepartmentPermission(actor, p.DepartmentPath, identity.PermissionOversightRead)
+}
+
+func (h Handler) authorizedActor(w http.ResponseWriter,r *http.Request) (identity.Actor,bool) {
+  if h.Authenticator==nil {
+    http.Error(w,"identity service unavailable",http.StatusServiceUnavailable)
+    return identity.Actor{},false
+  }
+  actor,present,err:=h.Authenticator.Authenticate(r)
+  if err!=nil||!present {
+    http.Error(w,"sign-in required",http.StatusUnauthorized)
+    return identity.Actor{},false
+  }
+  now:=time.Now().UTC()
+  if h.Now!=nil {now=h.Now().UTC()}
+  if actor.Valid(now)!=nil {
+    http.Error(w,"sign-in required",http.StatusUnauthorized)
+    return identity.Actor{},false
+  }
+  if actor.LegalEntityID=="*"||strings.EqualFold(actor.Kind,"SERVICE")||
+     (!identity.HasPermission(actor,identity.PermissionOversightRead)&&!hasScopedReadGrant(actor)) {
+    http.Error(w,"access denied",http.StatusForbidden)
+    return identity.Actor{},false
+  }
+  return actor,true
 }

@@ -84,13 +84,17 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 		_ = db.Close()
 		return nil, nil, err
 	}
-	handler := http.Handler(programread.Handler{
+	handler := programread.Handler{
 		Authenticator: signed,
 		Repository: programread.NewSQLRepository(db),
-	})
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		queryCtx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 		defer cancel()
+		if r.URL.Path == "/api/v1/programs" {
+			handler.ServeListHTTP(w, r.WithContext(queryCtx))
+			return
+		}
 		handler.ServeHTTP(w, r.WithContext(queryCtx))
 	}), db, nil
 }
@@ -104,6 +108,7 @@ func buildRouter(c catalog.Catalog, protectedProgram http.Handler) *http.ServeMu
 	})
 	mux.HandleFunc("GET /api/v1/frameworks", c.Handler)
 	if protectedProgram != nil {
+		mux.Handle("GET /api/v1/programs", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}", protectedProgram)
 	}
 	return mux
