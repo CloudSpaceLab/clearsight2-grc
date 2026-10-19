@@ -93,7 +93,9 @@ func TestProgramListHTTPAuthorizesBeforeReading(t *testing.T) {
 			}
 		})
 	}
-	repo:=&listStub{page:ListPage{Items:[]Record{makeRecord()}}}
+	valid:=makeRecord()
+ valid.ID="00000000-0000-4000-8000-000000000301"
+ repo:=&listStub{page:ListPage{Items:[]Record{valid}}}
 	w:=listRequest(Handler{Authenticator:testAuth{actor:a,present:true},Repository:repo},"/api/v1/programs?limit=2")
 	if w.Code!=200||repo.calls!=1||w.Header().Get("Cache-Control")!="no-store"{
 		t.Fatalf("authorized list: %d %s",w.Code,w.Body.String())
