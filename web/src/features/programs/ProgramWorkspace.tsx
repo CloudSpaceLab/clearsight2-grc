@@ -4,6 +4,7 @@ import { Icon } from '../../shared/Icons'
 import { useProgramRecord } from './programRecord'
 import { useProgramDirectory } from './programDirectory'
 import { useApprovedRequirements } from './approvedRequirements'
+import { ProgramInventoryPanel } from './ProgramInventoryPanel'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -149,12 +150,12 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
       : <section className="page-panel alternate-panel" id={'program-panel-'+section.toLowerCase()}
           role="tabpanel" aria-labelledby={'program-tab-'+section.toLowerCase()}>
           <div className="section-title-row"><div><h2>{section}</h2>
-            <p>{section==='Requirements'?'Applicable obligations and assessment results'
+            <p>{section==='Requirements'?'Approved requirements and linked controls'
                 :section==='Assessments'?'Submitted and outstanding responses'
-                :section==='Evidence'?'Submitted and expiring files'
+                :section==='Evidence'?'Evidence collection contracts'
                 :section==='Issues'?'Open gaps and corrective actions':'Program changes and review history'}</p></div>
           </div>
-          {section==='Requirements' && record ? <section className="surface program-section-message" aria-label="Approved requirement references">
+          {section==='Requirements' && record ? <><section className="surface program-section-message" aria-label="Approved requirement references">
             {requirements.state.status==='loading' ? <p role="status">Loading approved requirements…</p>
               :requirements.state.status==='ready' ?
                 requirements.state.page.items.length===0 ? <p role="status">No current approved requirements.</p>
@@ -187,6 +188,12 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
               Approved source references only. Applicability, controls and evidence are assessed separately.
             </p>}
           </section>
+          <ProgramInventoryPanel kind="controls" programId={record.id}
+            revision={record.source_revision} onRefreshProgram={retry}/>
+          </>
+          : section==='Evidence' && record
+            ? <ProgramInventoryPanel kind="evidence-contracts" programId={record.id}
+                revision={record.source_revision} onRefreshProgram={retry}/>
           :<div className="surface program-section-message" role="status">
             <h3>{section==='Requirements'?'Select a Program':`No ${section.toLowerCase()} available`}</h3>
             <p>{section==='Requirements'?'Open an authorized Program to view current approved requirements.'

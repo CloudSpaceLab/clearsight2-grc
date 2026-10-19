@@ -91,3 +91,11 @@
  .program-page .program-directory{padding:16px}
  .program-page .program-directory-entry{padding:14px 10px}
 }
+
+
+/* Source-backed inventory panels reuse the approved Program surface and table tokens. */
+.program-page .program-inventory{padding:22px 20px;margin-top:20px;min-width:0}
+.program-page .program-inventory .surface-heading{margin-bottom:14px}
+.program-page .program-inventory .assessment-table{min-width:450px}
+.program-page .program-inventory-note{margin:15px 0 0;font-size:11px;color:#8192ae}
+@media(max-width:600px){.program-page .program-inventory{padding:16px}}
