@@ -35,7 +35,13 @@ CREATE TABLE organization_scopes (
 CREATE TABLE programs (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, legal_entity_id uuid NOT NULL,
  organization_scope_id uuid REFERENCES organization_scopes(id),
- name text NOT NULL, version bigint NOT NULL, updated_at timestamptz NOT NULL
+ name text NOT NULL, version bigint NOT NULL, updated_at timestamptz NOT NULL,
+ status text NOT NULL DEFAULT 'ACTIVE', calculation_policy jsonb
+);
+CREATE TABLE continuity_events (
+ tenant_id uuid NOT NULL, aggregate_type text NOT NULL, aggregate_id uuid NOT NULL,
+ aggregate_version bigint NOT NULL, event_type text NOT NULL, payload jsonb NOT NULL,
+ actor_type text NOT NULL, actor_id uuid, occurred_at timestamptz NOT NULL
 );
 CREATE TABLE program_requirements (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
