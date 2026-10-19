@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import './program.css'
+import { useProgramMetadata } from './useProgramMetadata'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
 type Section = typeof sections[number]
@@ -12,8 +13,10 @@ const metrics = [
   { label:'Evidence to review', icon:'form', suffix:'items' },
 ] as const
 
-export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
+export function ProgramWorkspace({openFrameworks, programId}:{openFrameworks:()=>void;programId?:string|null}){
   const [section,setSection]=useState<Section>('Overview')
+  const { state: programRead, retry: retryProgramRead } = useProgramMetadata(programId ?? null)
+  const selectedProgram = programRead.kind === 'ready' ? programRead.program : null
   const tabs=useWorkspaceTabs(sections,section,setSection)
   return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
@@ -21,9 +24,10 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
     <header className="program-heading">
       <div className="heading-copy">
         <div className="eyebrow">PROGRAMS <span className="eyebrow-dot">·</span> WORKSPACE</div>
-        <h1>Program workspace</h1>
-        <p>Select a Program to review requirements, assessments and evidence.</p>
-        <div className="heading-meta"><span className="status program-status">No Program selected</span>
+        <h1>{selectedProgram?.name ?? 'Program workspace'}</h1>
+        <p>{selectedProgram ? 'Program record loaded. Assessments and evidence are not connected.' :
+          'Select a Program to review requirements, assessments and evidence.'}</p>
+        <div className="heading-meta"><span className="status program-status">{selectedProgram ? 'Record loaded' : 'No Program selected'}</span>
           <span>Organization <strong>Not connected</strong></span></div>
       </div>
       <svg className="mountains" viewBox="0 0 700 200" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="mount1" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#b5e3ff" stopOpacity="0"/><stop offset="1" stopColor="#a4d4ff" stopOpacity=".55"/></linearGradient><linearGradient id="mount2" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#6dc2fb" stopOpacity="0"/><stop offset="1" stopColor="#77bfff" stopOpacity=".33"/></linearGradient></defs><path fill="url(#mount1)" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/><path fill="url(#mount2)" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/></svg>
@@ -35,6 +39,16 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
           <Icon name="plus"/>New assessment</button>
       </div>
     </header>
+    {programId && <div className="program-record-status" role={programRead.kind === 'unavailable' ? 'alert' : 'status'} aria-live="polite">
+      {programRead.kind === 'loading' ? 'Loading Program…'
+        : selectedProgram ? <>Record revision {selectedProgram.source_revision} · Updated {selectedProgram.updated_at.slice(0,10)}. Measures are not connected.</>
+        : programRead.kind === 'sign-in' ? 'Sign in to view this Program.'
+        : programRead.kind === 'denied' ? 'Access denied.'
+        : programRead.kind === 'missing' ? 'Program not found.'
+        : programRead.kind === 'invalid-id' ? 'Invalid Program link.'
+        : 'Program unavailable.'}
+      {programRead.kind === 'unavailable' && <button className="text-link" type="button" onClick={retryProgramRead}>Retry</button>}
+    </div>}
     <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={tabs.onKeyDown}>
       {sections.map((name,i)=><button key={name} type="button" role="tab"
         id={'program-tab-'+name.toLowerCase()}
