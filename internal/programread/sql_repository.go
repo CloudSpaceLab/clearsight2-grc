@@ -35,6 +35,9 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
   listStatement, err := db.PrepareContext(ctx, visibleProgramListSQL)
   if err != nil { return fmt.Errorf("Program list schema incompatible: %w", err) }
   if err := listStatement.Close(); err != nil { return fmt.Errorf("close Program list schema check: %w", err) }
+  requirementsStatement, err := db.PrepareContext(ctx, approvedRequirementsSQL)
+  if err != nil { return fmt.Errorf("Program requirements schema incompatible: %w", err) }
+  if err := requirementsStatement.Close(); err != nil { return fmt.Errorf("close Program requirements schema check: %w", err) }
   return nil
  }
 

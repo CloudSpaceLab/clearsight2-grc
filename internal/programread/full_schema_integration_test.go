@@ -88,4 +88,23 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 			}
 		})
 	}
+	// Requirements are drawn from the actual pinned v1 schema, not the reduced fixture.
+	exec(`INSERT INTO program_requirements
+	    (id,tenant_id,program_id,code,title,statement,modality,status,effective_from)
+	    VALUES ($1::uuid,$2::uuid,$3::uuid,'SEC-1','Current approved requirement','Synthetic acceptance requirement','MUST','APPROVED',$4),
+	           ($5::uuid,$2::uuid,$3::uuid,'SEC-DRAFT','Draft requirement','Unapproved content','MUST','DRAFT',$4),
+	           ($6::uuid,$7::uuid,$8::uuid,'OTHER-TENANT','Other tenant requirement','Synthetic protected statement','MUST','APPROVED',$4)`,
+	    fixtureUUID(1401),fixtureUUID(1001),fixtureUUID(1301),time.Now().UTC().Add(-time.Hour),
+	    fixtureUUID(1402),fixtureUUID(1403),fixtureUUID(1002),fixtureUUID(1303))
+	requirements, err := reader.ListApprovedRequirements(ctx,permitted,fixtureUUID(1301),ListQuery{Limit:10})
+	if err!=nil||len(requirements.Items)!=1||requirements.Items[0].Code!="SEC-1"{
+		t.Fatalf("full v1 approved requirement read failed: %+v %v",requirements,err)
+	}
+	if _,err:=reader.ListApprovedRequirements(ctx,permitted,fixtureUUID(1303),ListQuery{Limit:10});!errors.Is(err,ErrNotFound){
+		t.Fatalf("full v1 cross-tenant requirement read was not denied: %v",err)
+	}
+	if _,err:=reader.ListApprovedRequirements(ctx,scopedActor(1001,1011,false,"BANK","CARDS"),fixtureUUID(1301),ListQuery{Limit:10});!errors.Is(err,ErrNotFound){
+		t.Fatalf("full v1 wrong department requirement read was not denied: %v",err)
+	}
+
 }

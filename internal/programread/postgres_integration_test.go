@@ -37,6 +37,11 @@ CREATE TABLE programs (
  organization_scope_id uuid REFERENCES organization_scopes(id),
  name text NOT NULL, version bigint NOT NULL, updated_at timestamptz NOT NULL
 );
+CREATE TABLE program_requirements (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
+ code text NOT NULL, title text NOT NULL, version bigint NOT NULL,
+ status text NOT NULL, effective_from timestamptz NOT NULL, effective_until timestamptz
+);
 `
 
 func fixtureUUID(n int) string { return fmt.Sprintf("00000000-0000-4000-8000-%012d",n) }
