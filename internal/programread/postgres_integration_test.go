@@ -42,6 +42,21 @@ CREATE TABLE program_requirements (
  code text NOT NULL, title text NOT NULL, version bigint NOT NULL,
  status text NOT NULL, effective_from timestamptz NOT NULL, effective_until timestamptz
 );
+CREATE TABLE control_implementations (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
+ name text NOT NULL, status text NOT NULL, version bigint NOT NULL,
+ updated_at timestamptz NOT NULL, effective_from timestamptz NOT NULL, effective_until timestamptz
+);
+CREATE TABLE requirement_control_links (
+ tenant_id uuid NOT NULL, program_id uuid NOT NULL, requirement_id uuid NOT NULL,
+ implementation_id uuid NOT NULL
+);
+CREATE TABLE evidence_contracts (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
+ requirement_id uuid, control_implementation_id uuid,
+ code text NOT NULL, name text NOT NULL, status text NOT NULL, version bigint NOT NULL,
+ updated_at timestamptz NOT NULL
+);
 `
 
 func fixtureUUID(n int) string { return fmt.Sprintf("00000000-0000-4000-8000-%012d",n) }
