@@ -6,7 +6,7 @@ export type Screen = 'frameworks' | 'home' | 'programs' | 'assessment'
 const nav:{label:string;icon:IconKey;screen?:Screen}[]=[
   {label:'Home',icon:'home',screen:'home'},
   {label:'Frameworks',icon:'layers',screen:'frameworks'},
-  {label:'Programs',icon:'grid',screen:'programs'},{label:'Forms',icon:'form'},
+  {label:'Programs',icon:'grid',screen:'programs'},{label:'Forms',icon:'form',screen:'assessment'},
   {label:'Vendors',icon:'users'},{label:'Risk & Losses',icon:'shield'},
   {label:'Privacy',icon:'lock'},{label:'Reports',icon:'chart'}
 ]
@@ -19,8 +19,8 @@ export function DesignShell({screen,onNavigate,children}:{screen:Screen;onNaviga
         <div><strong>ClearSight</strong><small>Governance · Risk · Compliance</small></div></div>
       <nav className="nav" aria-label="Primary">
         {nav.map(item=>item.screen
-          ? <button key={item.label} type="button" className={'nav-item'+((screen===item.screen || (screen==='assessment' && item.screen==='programs'))?' active':'')}
-              aria-current={(screen===item.screen || (screen==='assessment' && item.screen==='programs'))?'page':undefined} onClick={()=>onNavigate(item.screen as Screen)}>
+          ? <button key={item.label} type="button" className={'nav-item'+(screen===item.screen?' active':'')}
+              aria-current={screen===item.screen?'page':undefined} onClick={()=>onNavigate(item.screen as Screen)}>
               <Icon name={item.icon}/><span>{item.label}</span></button>
           : <span key={item.label} className="nav-item" aria-disabled="true"
               title="Requires authenticated operational services"><Icon name={item.icon}/><span>{item.label}</span></span>)}
