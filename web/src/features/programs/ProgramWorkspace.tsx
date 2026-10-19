@@ -38,10 +38,7 @@ export function ProgramWorkspace({openFrameworks}:{openFrameworks:()=>void}){
         <div className="heading-meta"><span className="status program-status">No Program selected</span>
           <span>Organization <strong>Not connected</strong></span></div>
       </div>
-      <svg className="mountains" aria-hidden="true" viewBox="0 0 700 200" preserveAspectRatio="none">
-        <path fill="#a4d4ff" opacity=".35" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/>
-        <path fill="#77bfff" opacity=".2" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/>
-      </svg>
+      <svg className="mountains" viewBox="0 0 700 200" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="mount1" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#b5e3ff" stopOpacity="0"/><stop offset="1" stopColor="#a4d4ff" stopOpacity=".55"/></linearGradient><linearGradient id="mount2" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#6dc2fb" stopOpacity="0"/><stop offset="1" stopColor="#77bfff" stopOpacity=".33"/></linearGradient></defs><path fill="url(#mount1)" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/><path fill="url(#mount2)" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/></svg>
       <div className="heading-tools">
         <span className="prototype-tag"><Icon name="info"/>No authorized Program data</span>
         <div className="period-switch"><label htmlFor="program-period">Activity period</label>
