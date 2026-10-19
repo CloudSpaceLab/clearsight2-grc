@@ -3,6 +3,7 @@ import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import { useProgramRecord } from './programRecord'
 import { useProgramDirectory } from './programDirectory'
+import { useApprovedRequirements } from './approvedRequirements'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -26,6 +27,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
     : 'No Program selected'
   const [section,setSection]=useState<Section>('Overview')
   const tabs=useWorkspaceTabs(sections,section,setSection)
+  const requirements=useApprovedRequirements(record?.id ?? null,record?.source_revision ?? null,section==='Requirements' && !!record)
   return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
       <Icon name="next"/><span>Workspace</span></nav>
@@ -152,10 +154,44 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
                 :section==='Evidence'?'Submitted and expiring files'
                 :section==='Issues'?'Open gaps and corrective actions':'Program changes and review history'}</p></div>
           </div>
-          <div className="surface program-section-message" role="status">
-            <h3>No {section.toLowerCase()} available</h3>
-            <p>Connect an authorized organization and select a Program.</p>
-          </div>
+          {section==='Requirements' && record ? <section className="surface program-section-message" aria-label="Approved requirement references">
+            {requirements.state.status==='loading' ? <p role="status">Loading approved requirements…</p>
+              :requirements.state.status==='ready' ?
+                requirements.state.page.items.length===0 ? <p role="status">No current approved requirements.</p>
+                : <div className="assessment-table-wrap"><table className="assessment-table">
+                  <caption className="sr-only">Approved current requirements for {record.name}</caption>
+                  <thead><tr><th>Code</th><th>Requirement</th><th>Version</th><th>Effective from</th></tr></thead>
+                  <tbody>{requirements.state.page.items.map(item=><tr key={item.id}>
+                    <td>{item.code}</td><td>{item.title}</td><td>{item.version}</td>
+                    <td>{new Date(item.effective_from).toLocaleDateString()}</td>
+                  </tr>)}</tbody>
+                </table></div>
+              :<div role={requirements.state.status==='unavailable'?'alert':'status'}>
+                <p>{requirements.state.status==='unauthenticated'?'Sign in required.'
+                  :requirements.state.status==='forbidden'?'Access denied.'
+                  :requirements.state.status==='not_found'?'Program unavailable.'
+                  :requirements.state.status==='changed'?'Program changed. Reload to review current requirements.'
+                  :'Requirements unavailable.'}</p>
+                {(requirements.state.status==='unavailable'||requirements.state.status==='changed') &&
+                  <button className="text-link" type="button" onClick={()=>{
+                    if (requirements.state.status==='changed') retry()
+                    requirements.retry()
+                  }}>{requirements.state.status==='changed'?'Reload Program':'Retry'}</button>}
+              </div>}
+            {requirements.state.status==='ready' && (requirements.hasPrevious||!!requirements.state.page.next_cursor) &&
+              <nav aria-label="Requirement pages" className="program-directory-pagination">
+                <button className="button" type="button" onClick={requirements.previous} disabled={!requirements.hasPrevious}>Previous</button>
+                <button className="button" type="button" onClick={requirements.next} disabled={!requirements.state.page.next_cursor}>Next</button>
+              </nav>}
+            {requirements.state.status==='ready' && <p className="program-context-empty">
+              Approved source references only. Applicability, controls and evidence are assessed separately.
+            </p>}
+          </section>
+          :<div className="surface program-section-message" role="status">
+            <h3>{section==='Requirements'?'Select a Program':`No ${section.toLowerCase()} available`}</h3>
+            <p>{section==='Requirements'?'Open an authorized Program to view current approved requirements.'
+              :'Connect an authorized organization and select a Program.'}</p>
+          </div>}
         </section>}
   </>
 }
