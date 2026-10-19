@@ -95,6 +95,10 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 			handler.ServeListHTTP(w, r.WithContext(queryCtx))
 			return
 		}
+		if r.URL.Path == "/api/v1/programs/"+r.PathValue("id")+"/requirements" {
+			handler.ServeRequirementsHTTP(w,r.WithContext(queryCtx))
+			return
+		}
 		handler.ServeHTTP(w, r.WithContext(queryCtx))
 	}), db, nil
 }
@@ -110,6 +114,7 @@ func buildRouter(c catalog.Catalog, protectedProgram http.Handler) *http.ServeMu
 	if protectedProgram != nil {
 		mux.Handle("GET /api/v1/programs", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}", protectedProgram)
+		mux.Handle("GET /api/v1/programs/{id}/requirements", protectedProgram)
 	}
 	return mux
 }
