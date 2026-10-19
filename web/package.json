@@ -10,7 +10,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:program-api": "node --experimental-strip-types --test scripts/program-api.nodecheck.mjs"
   },
   "dependencies": {
     "react": "19.2.8",
