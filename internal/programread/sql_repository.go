@@ -110,34 +110,16 @@ func getVisible(ctx context.Context, q programQuerier, actor identity.Actor, id 
 		return Record{}, ErrNotFound
 	}
 
-	global := identity.HasPermission(actor, identity.PermissionOversightRead)
-	paths := make([][]string, 0, len(actor.DepartmentGrants))
-	if !global {
-		for _, grant := range actor.DepartmentGrants {
-			if len(grant.Path) == 0 ||
-				!identity.HasDepartmentPermission(actor, grant.Path, identity.PermissionOversightRead) {
-				continue
-			}
-			path, err := identity.NormalizeDepartmentPath(grant.Path)
-			if err != nil || len(path) == 0 {
-				continue
-			}
-			paths = append(paths, path)
-		}
-		if len(paths) == 0 {
-			return Record{}, ErrNotFound
-		}
-	}
-	permissions, err := json.Marshal(paths)
+	global, permissions, err := actorReadScope(actor)
 	if err != nil {
-		return Record{}, fmt.Errorf("encode allowed department paths: %w", err)
+		return Record{}, err
 	}
 
 	var p Record
 	var version int64
 	var pathJSON string
 	err = q.QueryRowContext(ctx, visibleProgramSQL,
-		actor.TenantID, actor.LegalEntityID, id, global, string(permissions),
+		actor.TenantID, actor.LegalEntityID, id, global, permissions,
 	).Scan(&p.ID, &p.Name, &version, &p.UpdatedAt, &p.TenantID, &p.LegalEntityID, &pathJSON)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Record{}, ErrNotFound
@@ -153,4 +135,32 @@ func getVisible(ctx context.Context, q programQuerier, actor identity.Actor, id 
 		return Record{}, errors.New("invalid actor-scoped program projection")
 	}
 	return p, nil
+}
+
+// actorReadScope forms exact database-bound grants. It never infers hierarchical permissions.
+func actorReadScope(actor identity.Actor) (bool,string,error) {
+	global := identity.HasPermission(actor, identity.PermissionOversightRead)
+	paths := make([][]string, 0, len(actor.DepartmentGrants))
+	if !global {
+		for _, grant := range actor.DepartmentGrants {
+			if len(grant.Path) == 0 ||
+				!identity.HasDepartmentPermission(actor, grant.Path, identity.PermissionOversightRead) {
+				continue
+			}
+			path, err := identity.NormalizeDepartmentPath(grant.Path)
+			if err != nil || len(path) == 0 {
+				continue
+			}
+			paths = append(paths, path)
+		}
+		if len(paths) == 0 {
+			return false, "", ErrNotFound
+		}
+	}
+	permissions, err := json.Marshal(paths)
+	if err != nil {
+		return false, "", fmt.Errorf("encode allowed department paths: %w", err)
+	}
+
+	return global,string(permissions),nil
 }
