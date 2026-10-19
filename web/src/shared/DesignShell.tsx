@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Icon } from './Icons'
 import type { IconKey } from './Icons'
 
-export type Screen = 'frameworks' | 'home' | 'programs'
+export type Screen = 'frameworks' | 'home' | 'programs' | 'assessment'
 const nav:{label:string;icon:IconKey;screen?:Screen}[]=[
   {label:'Home',icon:'home',screen:'home'},
   {label:'Frameworks',icon:'layers',screen:'frameworks'},
@@ -19,8 +19,8 @@ export function DesignShell({screen,onNavigate,children}:{screen:Screen;onNaviga
         <div><strong>ClearSight</strong><small>Governance · Risk · Compliance</small></div></div>
       <nav className="nav" aria-label="Primary">
         {nav.map(item=>item.screen
-          ? <button key={item.label} type="button" className={'nav-item'+(screen===item.screen?' active':'')}
-              aria-current={screen===item.screen?'page':undefined} onClick={()=>onNavigate(item.screen as Screen)}>
+          ? <button key={item.label} type="button" className={'nav-item'+((screen===item.screen || (screen==='assessment' && item.screen==='programs'))?' active':'')}
+              aria-current={(screen===item.screen || (screen==='assessment' && item.screen==='programs'))?'page':undefined} onClick={()=>onNavigate(item.screen as Screen)}>
               <Icon name={item.icon}/><span>{item.label}</span></button>
           : <span key={item.label} className="nav-item" aria-disabled="true"
               title="Requires authenticated operational services"><Icon name={item.icon}/><span>{item.label}</span></span>)}
@@ -39,7 +39,7 @@ export function DesignShell({screen,onNavigate,children}:{screen:Screen;onNaviga
         <button className="top-icon" type="button" disabled aria-label="Notifications unavailable"><Icon name="bell"/></button>
         <div className="profile"><div className="avatar">—</div><div><strong>Not signed in</strong><small>Foundation preview</small></div></div>
       </header>
-      <main className={screen==='programs' ? 'content program-page' : 'content'} id="content">{children}</main>
+      <main className={screen==='programs' ? 'content program-page' : screen==='assessment' ? 'content assessment-page' : 'content'} id="content">{children}</main>
     </div>
   </div>
 }
