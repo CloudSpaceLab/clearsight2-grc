@@ -105,7 +105,9 @@ func TestProgramReadFailureModes(t *testing.T){
     {"empty id",&testRepo{record:makeRecord()},"/api/v1/programs/",404},
   }
   for _,tc:=range cases{t.Run(tc.name,func(t *testing.T){
-    w:=request(Handler{Authenticator:testAuth{actor:actor,present:true},Repository:tc.repo},tc.url)
+    var reader Repository
+    if tc.repo != nil { reader = tc.repo }
+    w:=request(Handler{Authenticator:testAuth{actor:actor,present:true},Repository:reader},tc.url)
     if w.Code!=tc.expected{t.Fatalf("status=%d expected=%d body=%s",w.Code,tc.expected,w.Body)}
     if tc.name=="query scope spoof" && tc.repo.called!=0{t.Fatal("spoofed scope reached repository")}
   })}
