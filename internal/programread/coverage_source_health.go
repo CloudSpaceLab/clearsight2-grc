@@ -72,7 +72,7 @@ func loadProgramSourceHealth(ctx context.Context,tx *sql.Tx,tenantID,programID s
  if err:=tx.QueryRowContext(ctx,coverageSourceHealthSQL,tenantID,programID).Scan(&required,&current);err!=nil{
   return continuity.ProgramSourceState{},fmt.Errorf("read Program source health: %w",err)
  }
- if required<0 || current<0 || current>required{
+ if required<0 || required>maxCoverageFactsPerTable || current<0 || current>required{
   return continuity.ProgramSourceState{},errors.New("invalid Program source health population")
  }
  // Preserve the v1 semantics exactly: Known=true even when there are zero
