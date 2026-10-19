@@ -194,3 +194,21 @@ func TestPostgresSignedProgramRead(t *testing.T){
  w:=httptest.NewRecorder();mux.ServeHTTP(w,tampered)
  if w.Code!=http.StatusUnauthorized{t.Fatalf("unsigned read permitted: %d",w.Code)}
 }
+
+
+func TestPostgresSchemaReadinessGate(t *testing.T) {
+	db := testDB(t)
+	ctx := context.Background()
+	if err := CheckSchema(ctx, db); err != nil {
+		t.Fatalf("compatible v1 read columns rejected: %v", err)
+	}
+	if _, err := db.ExecContext(ctx, "ALTER TABLE organization_scopes DROP COLUMN department_path"); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckSchema(ctx, db); err == nil {
+		t.Fatal("incompatible scope schema was accepted")
+	}
+	if err := CheckSchema(ctx, nil); err == nil {
+		t.Fatal("missing database accepted")
+	}
+}
