@@ -84,7 +84,7 @@ func TestInventoryHTTPFailsClosed(t *testing.T){
     if w.Header().Get("Cache-Control")!="no-store"{t.Fatal("inventory might be cached")}
     if tc.status!=200{
      if strings.Contains(w.Body.String(),"Current source reference"){t.Fatal("hidden value leaked")}
-     continue
+     return
     }
     var got InventoryPage
     if err:=json.Unmarshal(w.Body.Bytes(),&got);err!=nil||len(got.Items)!=1{
