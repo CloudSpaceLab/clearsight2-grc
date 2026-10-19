@@ -6,7 +6,7 @@ import { HomeEmpty } from './features/home/HomeEmpty'
 import { ProgramWorkspace } from './features/programs/ProgramWorkspace'
 
 export default function App(){
-  const [screen,setScreen]=useState<Screen>('frameworks')
+  const [screen,setScreen]=useState<Screen>(() => new URLSearchParams(window.location.search).get('screen') === 'programs' ? 'programs' : 'frameworks')
   return <DesignShell screen={screen} onNavigate={setScreen}>
     {screen==='home' ? <HomeEmpty browseFrameworks={()=>setScreen('frameworks')}/>
       :screen==='programs' ? <ProgramWorkspace openFrameworks={()=>setScreen('frameworks')}/>
