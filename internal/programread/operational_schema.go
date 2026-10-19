@@ -11,7 +11,7 @@ import (
 // selected late v1 governance contracts in addition to the Program read query.
 // It is not proof of migration history or authorization configuration.
 const operationalSchemaSQL = `
-SELECT count(*)
+SELECT COALESCE(string_agg(required.table_name || '.' || required.column_name, ', ' ORDER BY required.table_name, required.column_name),'')
 FROM (
   VALUES
     ('programs','tenant_id'),
@@ -51,12 +51,12 @@ func CheckOperationalSchema(ctx context.Context, db *sql.DB) error {
 	if db == nil {
 		return errors.New("program database is unavailable")
 	}
-	var missing int
+	var missing string
 	if err := db.QueryRowContext(ctx, operationalSchemaSQL).Scan(&missing); err != nil {
 		return fmt.Errorf("cannot verify Program governance schema: %w", err)
 	}
-	if missing != 0 {
-		return fmt.Errorf("program governance schema is incomplete: %d required columns unavailable", missing)
+	if missing != "" {
+		return fmt.Errorf("program governance schema is incomplete: %s", missing)
 	}
 	return nil
 }
