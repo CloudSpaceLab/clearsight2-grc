@@ -39,7 +39,7 @@ export function DesignShell({screen,onNavigate,children}:{screen:Screen;onNaviga
         <button className="top-icon" type="button" disabled aria-label="Notifications unavailable"><Icon name="bell"/></button>
         <div className="profile"><div className="avatar">—</div><div><strong>Not signed in</strong><small>Foundation preview</small></div></div>
       </header>
-      <main className="content" id="content">{children}</main>
+      <main className={screen==='programs' ? 'content program-page' : 'content'} id="content">{children}</main>
     </div>
   </div>
 }
