@@ -107,4 +107,37 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 		t.Fatalf("full v1 wrong department requirement read was not denied: %v",err)
 	}
 
+	// Verify the inventory joins against all pinned v1 migrations.
+	exec(`INSERT INTO control_objectives(id,tenant_id,program_id,code,name,outcome,status)
+	    VALUES($1::uuid,$2::uuid,$3::uuid,'AUTH','Authentication','Synthetic intended outcome','ACTIVE')`,
+	    fixtureUUID(1501),fixtureUUID(1001),fixtureUUID(1301))
+	exec(`INSERT INTO control_implementations(id,tenant_id,program_id,objective_id,name,description,implementation_type,status,effective_from)
+	    VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,'MFA configuration','Synthetic confidential description','MANUAL','IMPLEMENTED',$5)`,
+	    fixtureUUID(1511),fixtureUUID(1001),fixtureUUID(1301),fixtureUUID(1501),
+	    time.Now().UTC().Add(-time.Hour))
+	exec(`INSERT INTO requirement_control_links(id,tenant_id,program_id,requirement_id,implementation_id)
+	    VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::uuid)`,
+	    fixtureUUID(1521),fixtureUUID(1001),fixtureUUID(1301),fixtureUUID(1401),fixtureUUID(1511))
+	exec(`INSERT INTO evidence_contracts(id,tenant_id,program_id,requirement_id,code,name,claim,
+	    freshness_minutes,minimum_coverage,contradiction_policy,failure_action,status)
+	    VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,'AUTH-E1','MFA evidence','Synthetic confidential evidence claim',
+	    1440,1,'REVIEW','FLAG','ACTIVE')`,
+	    fixtureUUID(1531),fixtureUUID(1001),fixtureUUID(1301),fixtureUUID(1401))
+	exec(`INSERT INTO evidence_contracts(id,tenant_id,program_id,requirement_id,code,name,claim,
+	    freshness_minutes,minimum_coverage,contradiction_policy,failure_action,status)
+	    VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,'AUTH-DRAFT','Draft contract','Synthetic draft claim',
+	    1440,1,'REVIEW','FLAG','DRAFT')`,
+	    fixtureUUID(1532),fixtureUUID(1001),fixtureUUID(1301),fixtureUUID(1401))
+	for _,tc:=range []struct{kind InventoryKind;recordID int}{
+		{InventoryControls,1511},{InventoryEvidenceContracts,1531},
+	}{
+		page,err:=reader.ListInventory(ctx,permitted,fixtureUUID(1301),tc.kind,ListQuery{Limit:20})
+		if err!=nil||len(page.Items)!=1||page.Items[0].ID!=fixtureUUID(tc.recordID){
+			t.Fatalf("full v1 %s inventory mismatch: %+v %v",tc.kind,page,err)
+		}
+		if _,err:=reader.ListInventory(ctx,permitted,fixtureUUID(1303),tc.kind,ListQuery{Limit:20});!errors.Is(err,ErrNotFound){
+			t.Fatalf("%s exposed another tenant's Program: %v",tc.kind,err)
+		}
+	}
+
 }
