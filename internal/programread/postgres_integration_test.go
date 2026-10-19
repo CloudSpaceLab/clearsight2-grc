@@ -42,6 +42,11 @@ CREATE TABLE program_requirements (
  code text NOT NULL, title text NOT NULL, version bigint NOT NULL,
  status text NOT NULL, effective_from timestamptz NOT NULL, effective_until timestamptz
 );
+CREATE TABLE program_applicability (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
+ requirement_id uuid NOT NULL, status text NOT NULL, effective_from timestamptz NOT NULL,
+ effective_until timestamptz, created_at timestamptz NOT NULL
+);
 CREATE TABLE control_implementations (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
  name text NOT NULL, status text NOT NULL, version bigint NOT NULL,
@@ -49,13 +54,21 @@ CREATE TABLE control_implementations (
 );
 CREATE TABLE requirement_control_links (
  tenant_id uuid NOT NULL, program_id uuid NOT NULL, requirement_id uuid NOT NULL,
- implementation_id uuid NOT NULL
+ implementation_id uuid NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), retired_at timestamptz
 );
 CREATE TABLE evidence_contracts (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
  requirement_id uuid, control_implementation_id uuid,
  code text NOT NULL, name text NOT NULL, status text NOT NULL, version bigint NOT NULL,
- updated_at timestamptz NOT NULL
+ updated_at timestamptz NOT NULL,
+ freshness_minutes integer NOT NULL DEFAULT 60,
+ minimum_coverage numeric(6,5) NOT NULL DEFAULT 0.9
+);
+CREATE TABLE evidence_assessments (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL REFERENCES programs(id),
+ contract_id uuid NOT NULL REFERENCES evidence_contracts(id),
+ conclusion text NOT NULL, coverage numeric(6,5) NOT NULL,
+ valid_until timestamptz, assessed_at timestamptz NOT NULL, created_at timestamptz NOT NULL
 );
 `
 
