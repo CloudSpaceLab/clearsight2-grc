@@ -22,6 +22,7 @@ const (
  ImplementationRetired ControlImplementationStatus = "RETIRED"
  EvidenceContractActive EvidenceContractStatus = "ACTIVE"
  EvidenceSupported EvidenceConclusion = "SUPPORTED"
+ EvidenceUnsupported EvidenceConclusion = "UNSUPPORTED"
 )
 
 type Program struct {
