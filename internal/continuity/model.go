@@ -15,7 +15,9 @@ type ProgramStatus string
 const (
  ProgramActive ProgramStatus = "ACTIVE"
  RequirementApproved RequirementStatus = "APPROVED"
+ RequirementRetired RequirementStatus = "RETIRED"
  ApplicabilityApplicable ApplicabilityStatus = "APPLICABLE"
+ ApplicabilityPartial ApplicabilityStatus = "PARTIALLY_APPLICABLE"
  ApplicabilityNotApplicable ApplicabilityStatus = "NOT_APPLICABLE"
  ImplementationImplemented ControlImplementationStatus = "IMPLEMENTED"
  ImplementationInactive ControlImplementationStatus = "INACTIVE"

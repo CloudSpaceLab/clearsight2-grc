@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard verbatim source parity with the pinned v1 coverage evaluator."""
+"""Guard source parity with pinned v1 coverage and compliance calculators."""
 from __future__ import annotations
 
 import hashlib
@@ -16,6 +16,11 @@ BLOBS = {
     "internal/continuity/effective_evidence_contracts.go": "59bd9a4b4884f66a1f3b92ca8f94773a62c2acb8",
     "internal/continuity/requirement_coverage_test.go": "709c4fc063202841282ba268b09c6f7aa8e9e1e4",
     "internal/continuity/effective_evidence_contracts_test.go": "36754715f6ae56ebdf5a8fab149fcabdbb56bd73",
+    "internal/continuity/program_compliance_calculation.go": "52c23e67c256a99a727e884407e9378eca5a253d",
+    "internal/continuity/program_compliance_calculation_test.go": "8b363b4768aa1f0b59e67db4033d63f82e09fa31",
+    "internal/continuity/program_compliance_requirements.go": "e718b3eb79ece83abafde4bff65934d80d037f5c",
+    "internal/continuity/program_compliance_requirements_test.go": "d4b7c03068e9c42eb45283e775beafd122784f85",
+    "internal/continuity/program_compliance_policy_test.go": "d48e34e8d4c880e44fc5cc3a9592263a76d6af5f",
 }
 HELPERS = "internal/continuity/coverage_helpers.go"
 UPSTREAM_HELPERS = "internal/continuity/state.go"
