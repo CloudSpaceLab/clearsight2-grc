@@ -186,7 +186,7 @@ function App(){
                   <span><span className="fw-title">{f.title}</span><span className="fw-desc">{f.issuer}</span>
                     <span className="fw-tags"><span className="tag">{regions[f.jurisdiction]}</span>
                       <span className="tag"><b>·</b></span>
-                      <span className="tag">{sectors[f.sectors[0]]??'Reference'}</span></span></span>
+                      <span className="tag">{sectors[f.sectors[0] ?? '']??'Reference'}</span></span></span>
                   <span className="edition"><strong>{f.issuer}</strong><small>Edition {f.edition}</small></span>
                   <span className="fw-status"><span className={'pill '+(f.source_status==='source_identified'?'blue':'gold')}>
                     {f.source_status==='source_identified'?'Source identified':'Verify source'}</span>
@@ -206,7 +206,7 @@ function App(){
                 <div className="detail-body"><h2 className="detail-title">{selected.title}</h2>
                   <p className="detail-subtitle">{selected.issuer}</p>
                   <div className="detail-chips"><span className="pill blue">{regions[selected.jurisdiction]}</span>
-                    <span className="pill">{sectors[selected.sectors[0]]??'Reference'}</span>
+                    <span className="pill">{sectors[selected.sectors[0] ?? '']??'Reference'}</span>
                     <span className="pill gold">Metadata only</span></div>
                   <section className="detail-section"><h3>Edition details <span className="muted">Reference metadata</span></h3>
                     <div className="facts">
