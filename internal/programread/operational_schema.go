@@ -26,7 +26,6 @@ FROM (
     ('program_framework_adoptions','edition_id'),
     ('framework_clause_requirement_links','status'),
     ('organization_scope_lineage_events','scope_version'),
-    ('audit_events','tenant_id'),
     ('outbox_events','tenant_id'),
     ('framework_catalog_editions','release_sha256')
 ) AS required(table_name,column_name)
