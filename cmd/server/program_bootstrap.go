@@ -84,6 +84,10 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 		_ = db.Close()
 		return nil, nil, err
 	}
+	if err := programread.CheckOverviewSchema(ctx, db); err != nil {
+		_ = db.Close()
+		return nil, nil, err
+	}
 	handler := programread.Handler{
 		Authenticator: signed,
 		Repository: programread.NewSQLRepository(db),
@@ -100,6 +104,9 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 			return
 		}
 		switch r.Pattern {
+        case "GET /api/v1/programs/{id}/overview":
+            handler.ServeOverviewHTTP(w,r.WithContext(queryCtx))
+            return
         case "GET /api/v1/programs/{id}/controls":
             handler.ServeInventoryHTTP(w,r.WithContext(queryCtx),programread.InventoryControls)
             return
@@ -123,6 +130,7 @@ func buildRouter(c catalog.Catalog, protectedProgram http.Handler) *http.ServeMu
 		mux.Handle("GET /api/v1/programs", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}/requirements", protectedProgram)
+        mux.Handle("GET /api/v1/programs/{id}/overview", protectedProgram)
         mux.Handle("GET /api/v1/programs/{id}/controls", protectedProgram)
         mux.Handle("GET /api/v1/programs/{id}/evidence-contracts", protectedProgram)
 	}
