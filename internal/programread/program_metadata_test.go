@@ -2,6 +2,7 @@ package programread
 
 import (
  "encoding/json"
+ "strings"
  "testing"
 )
 
@@ -41,18 +42,11 @@ func TestBothProgramReadsShareTheSameProjection(t *testing.T){
  for _,column:=range []string{"p.code","p.status","p.program_type","p.owning_function","p.jurisdiction"}{
   // Both SQL statements reference the exact same ordered metadata field set.
   // Query-specific scope predicates must remain separately enforced.
-  if !containsSQL(programMetadataColumns,column) {t.Fatalf("missing Program field %s",column)}
+  if !strings.Contains(programMetadataColumns,column) {t.Fatalf("missing Program field %s",column)}
  }
- if !containsSQL(visibleProgramSQL,programMetadataColumns) ||
-    !containsSQL(visibleProgramListSQL,programMetadataColumns) {
+ if !strings.Contains(visibleProgramSQL,programMetadataColumns) ||
+    !strings.Contains(visibleProgramListSQL,programMetadataColumns) {
   t.Fatal("Program detail and bounded directory use different projections")
  }
 }
 
-func containsSQL(text,fragment string)bool{
- return len(fragment)>0 && len(text)>=len(fragment) && containsRaw(text,fragment)
-}
-func containsRaw(text,part string)bool{
- for i:=0;i+len(part)<=len(text);i++{if text[i:i+len(part)]==part{return true}}
- return false
-}
