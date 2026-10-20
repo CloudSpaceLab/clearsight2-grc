@@ -33,6 +33,9 @@ WHERE p.tenant_id=$1::uuid
     )
   )
   AND ($5::timestamptz IS NULL OR (p.updated_at,p.id)<($5::timestamptz,$6::uuid))
+  AND ($8::text='' OR p.code ILIKE $8::text || '%' ESCAPE '\\'
+       OR p.name ILIKE '%' || $8::text || '%' ESCAPE '\\')
+  AND ($9::text='' OR p.status=$9::text)
 ORDER BY p.updated_at DESC,p.id DESC
 LIMIT $7
 `
@@ -57,7 +60,8 @@ func (r *SQLRepository) ListVisible(ctx context.Context, actor identity.Actor, q
 		afterID=cursor.ID
 	}
 	rows,err:=r.db.QueryContext(ctx,visibleProgramListSQL,
-		actor.TenantID,actor.LegalEntityID,global,paths,afterTime,afterID,query.Limit+1)
+		actor.TenantID,actor.LegalEntityID,global,paths,afterTime,afterID,query.Limit+1,
+   escapeProgramSearch(query.Search),query.Status)
 	if err!=nil{return ListPage{},fmt.Errorf("read scoped Program list: %w",err)}
 	defer rows.Close()
 	result:=ListPage{Items:make([]Record,0,query.Limit)}
@@ -87,4 +91,10 @@ func (r *SQLRepository) ListVisible(ctx context.Context, actor identity.Actor, q
 	}
 	if err:=rows.Err();err!=nil{return ListPage{},fmt.Errorf("list Program rows: %w",err)}
 	return result,nil
+}
+
+// Treat %, _ and backslashes as literal search text, not LIKE wildcards.
+// Values remain bound parameters; no SQL string interpolation.
+func escapeProgramSearch(value string)string{
+ return strings.NewReplacer("\\","\\\\","%","\\%","_","\\_").Replace(value)
 }
