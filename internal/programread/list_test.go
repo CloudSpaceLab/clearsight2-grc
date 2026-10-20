@@ -59,6 +59,8 @@ func TestListCursorRoundTripAndValidation(t *testing.T) {
 		"/api/v1/programs?limit=2&limit=3",
 		"/api/v1/programs?cursor=bad",
 		"/api/v1/programs?unknown=anything",
+  "/api/v1/programs?status=VERIFIED",
+  "/api/v1/programs?q="+strings.Repeat("x",81),
 	} {
 		_,err:=listQuery(httptest.NewRequest(http.MethodGet,query,nil))
 		if err==nil{t.Fatalf("accepted unsafe query %s",query)}
@@ -135,4 +137,36 @@ func TestProgramListRejectsRepositoryScopeLeak(t *testing.T){
 	repo:=&listStub{err:errors.New("database offline")}
 	w:=listRequest(Handler{Authenticator:testAuth{actor:a,present:true},Repository:repo},"/api/v1/programs")
 	if w.Code!=503{t.Fatalf("unavailable database must fail closed: %d",w.Code)}
+}
+
+func TestProgramDirectoryFiltersScopedAndCanonical(t *testing.T){
+ for _,tc:=range []struct{path,search,status string}{
+  {"/api/v1/programs?q=Payments&status=active","Payments","ACTIVE"},
+  {"/api/v1/programs?status=retired","","RETIRED"},
+  {"/api/v1/programs?q=SEC-001","SEC-001",""},
+  {"/api/v1/programs","",""},
+ }{
+  query,err:=directoryQuery(httptest.NewRequest(http.MethodGet,tc.path,nil))
+  if err!=nil||query.Search!=tc.search||query.Status!=tc.status{
+   t.Fatalf("unexpected Program directory filters %+v: %v",query,err)
+  }
+ }
+ for _,path:=range []string{
+  "/api/v1/programs?tenant_id=other",
+  "/api/v1/programs?status=COMPLIANT",
+  "/api/v1/programs?q=x&q=y",
+  "/api/v1/programs?status=active&status=draft",
+ }{
+  if _,err:=directoryQuery(httptest.NewRequest(http.MethodGet,path,nil));err==nil{
+   t.Fatalf("unsafe Program directory filter accepted: %s",path)
+  }
+ }
+ for _,path:=range []string{"/api/v1/programs?q=Payments","/api/v1/programs?status=ACTIVE"}{
+  if _,err:=listQuery(httptest.NewRequest(http.MethodGet,path,nil));err==nil{
+   t.Fatalf("other governance lists must not accept Program-only filters: %s",path)
+  }
+ }
+ if got:=escapeProgramSearch(`50%_\`);got!=`50\%\_\\`{
+  t.Fatalf("search wildcard was not escaped: %q",got)
+ }
 }

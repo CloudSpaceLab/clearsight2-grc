@@ -28,12 +28,23 @@ export function isProgramPage(value: unknown): value is { items: ProgramRecord[]
   })
 }
 
-export async function fetchProgramPage(cursor: string, signal: AbortSignal): Promise<ProgramPage> {
-  if (cursor.length > 256) return { status: 'unavailable' }
+export async function fetchProgramPage(
+  cursor: string,
+  signal: AbortSignal,
+  search = '',
+  status = '',
+): Promise<ProgramPage> {
+  const term = search.trim()
+  if (cursor.length > 256 || term.length > 80 ||
+      (status !== '' && !['ACTIVE','DRAFT','PAUSED','RETIRED'].includes(status))) {
+    return { status: 'unavailable' }
+  }
   const params = new URLSearchParams({ limit: '25' })
   if (cursor) params.set('cursor', cursor)
+  if (term) params.set('q', term)
+  if (status) params.set('status', status)
   try {
-    // Authentication is supplied by the trusted same-origin session edge.
+    // The authenticated edge determines tenant, entity and department scope.
     const response = await fetch('/api/v1/programs?' + params.toString(), {
       method: 'GET', credentials: 'same-origin', cache: 'no-store',
       headers: { Accept: 'application/json' }, signal,
@@ -49,41 +60,43 @@ export async function fetchProgramPage(cursor: string, signal: AbortSignal): Pro
   }
 }
 
-export function useProgramDirectory(enabled: boolean) {
-  const [cursor, setCursor] = useState('')
-  const [history, setHistory] = useState<string[]>([])
+type Paging = Readonly<{ key: string; cursor: string; previous: string[] }>
+type Loaded = Readonly<{ key: string; cursor: string; generation: number; page: ProgramPage }>
+
+export function useProgramDirectory(enabled: boolean, search = '', status = '') {
+  const key = JSON.stringify([search.trim(), status])
+  const [paging, setPaging] = useState<Paging>({ key: '', cursor: '', previous: [] })
   const [generation, setGeneration] = useState(0)
-  const [page, setPage] = useState<ProgramPage>({ status: 'loading' })
+  const [loaded, setLoaded] = useState<Loaded | null>(null)
+  const current: Paging = paging.key === key ? paging : { key, cursor: '', previous: [] }
+  const page: ProgramPage = enabled && loaded?.key === key &&
+    loaded.cursor === current.cursor && loaded.generation === generation
+    ? loaded.page : { status: 'loading' }
 
   useEffect(() => {
-    if (!enabled) {
-      setCursor('')
-      setHistory([])
-      setPage({ status: 'loading' })
-      return
-    }
+    if (!enabled) return
     const controller = new AbortController()
-    setPage({ status: 'loading' })
-    void fetchProgramPage(cursor, controller.signal).then(result => {
-      if (!controller.signal.aborted) setPage(result)
+    void fetchProgramPage(current.cursor, controller.signal, search, status).then(result => {
+      if (!controller.signal.aborted) {
+        setLoaded({ key, cursor: current.cursor, generation, page: result })
+      }
     })
     return () => controller.abort()
-  }, [enabled, cursor, generation])
+  }, [enabled, key, current.cursor, search, status, generation])
 
   return {
-    page: enabled ? page : ({ status: 'loading' } as const),
-    hasPrevious: history.length > 0,
+    page,
+    hasPrevious: current.previous.length > 0,
     previous() {
-      if (history.length === 0) return
-      setPage({ status: 'loading' })
-      setCursor(history[history.length - 1] ?? '')
-      setHistory(paths => paths.slice(0, -1))
+      if (!current.previous.length) return
+      setPaging({ key, cursor: current.previous[current.previous.length - 1] ?? '',
+        previous: current.previous.slice(0, -1) })
     },
     next() {
-      if (page.status !== 'ready' || !page.nextCursor || page.nextCursor === cursor) return
-      setPage({ status: 'loading' })
-      setHistory(paths => [...paths, cursor])
-      setCursor(page.nextCursor)
+      if (page.status !== 'ready' || !page.nextCursor ||
+          page.nextCursor === current.cursor) return
+      setPaging({ key, cursor: page.nextCursor,
+        previous: [...current.previous, current.cursor] })
     },
     retry() { setGeneration(value => value + 1) },
   }

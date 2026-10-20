@@ -17,7 +17,10 @@ const metrics = [
 ] as const
 
 export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{openFrameworks:()=>void;programId:string|null;onSelectProgram:(id:string)=>void}){
-  const directory = useProgramDirectory(programId === null)
+  const [searchInput,setSearchInput]=useState('')
+  const [search,setSearch]=useState('')
+  const [lifecycle,setLifecycle]=useState('')
+  const directory = useProgramDirectory(programId === null,search,lifecycle)
   const [program, retry] = useProgramRecord(programId)
   const record = program.status === 'ready' ? program.record : null
   const programMessage = program.status === 'loading' ? 'Loading Program…'
@@ -59,6 +62,25 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
         {directory.page.status === 'unavailable' &&
           <button type="button" className="text-link" onClick={directory.retry}>Retry</button>}
       </div>
+      <form className="program-directory-filters" role="search" onSubmit={event=>{
+        event.preventDefault()
+        setSearch(searchInput.trim())
+      }}>
+        <label htmlFor="program-search">Search Programs</label>
+        <input id="program-search" type="search" maxLength={80}
+          value={searchInput} onChange={event=>setSearchInput(event.target.value)}
+          placeholder="Code or name"/>
+        <button className="button" type="submit">Find</button>
+        <label htmlFor="program-status">Status</label>
+        <select id="program-status" value={lifecycle}
+          onChange={event=>setLifecycle(event.target.value)}>
+          <option value="">All statuses</option>
+          <option value="ACTIVE">Active</option>
+          <option value="DRAFT">Draft</option>
+          <option value="PAUSED">Paused</option>
+          <option value="RETIRED">Retired</option>
+        </select>
+      </form>
       {directory.page.status === 'loading' ? <p role="status" className="program-directory-message">Loading Programs…</p>
         : directory.page.status === 'unauthenticated' ? <p role="status" className="program-directory-message">Sign in to view Programs.</p>
         : directory.page.status === 'forbidden' ? <p role="status" className="program-directory-message">Access denied.</p>

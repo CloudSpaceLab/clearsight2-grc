@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+ "unicode/utf8"
 	"time"
 
 	"github.com/CloudSpaceLab/clearsight2-grc/internal/identity"
@@ -18,8 +19,10 @@ const defaultPageSize = 25
 const maximumPageSize = 50
 
 type ListQuery struct {
-	Limit int
-	Cursor string
+ Limit int
+ Cursor string
+ Search string
+ Status string
 }
 
 type ListPage struct {
@@ -66,12 +69,30 @@ func isUUID(value string) bool {
 	}
 	return true
 }
-func listQuery(r *http.Request) (ListQuery,error) {
-	query:=r.URL.Query()
-	for key,values:=range query {
-		if (key!="limit"&&key!="cursor") || len(values)!=1 {return ListQuery{},errors.New("invalid list parameters")}
-	}
-	result:=ListQuery{Limit:defaultPageSize, Cursor:query.Get("cursor")}
+func listQuery(r *http.Request) (ListQuery,error) { return parseListQuery(r,false) }
+
+// Directory filters are allowed only for Program discovery. Requirement and
+// evidence endpoints must reject rather than silently ignore them.
+func directoryQuery(r *http.Request) (ListQuery,error) { return parseListQuery(r,true) }
+
+func parseListQuery(r *http.Request,allowDirectoryFilters bool)(ListQuery,error) {
+ query:=r.URL.Query()
+ for key,values:=range query {
+  allowed:=key=="limit"||key=="cursor"||(allowDirectoryFilters&&(key=="q"||key=="status"))
+  if !allowed||len(values)!=1{return ListQuery{},errors.New("invalid list parameters")}
+ }
+ result:=ListQuery{Limit:defaultPageSize, Cursor:query.Get("cursor")}
+ if allowDirectoryFilters {
+  result.Search=strings.TrimSpace(query.Get("q"))
+  if !utf8.ValidString(result.Search)||len(result.Search)>80{
+   return ListQuery{},errors.New("invalid Program search")
+  }
+  result.Status=strings.ToUpper(strings.TrimSpace(query.Get("status")))
+  switch result.Status{
+  case "","ACTIVE","DRAFT","PAUSED","RETIRED":
+  default:return ListQuery{},errors.New("invalid Program lifecycle filter")
+  }
+ }
 	if raw:=query.Get("limit");raw!="" {
 		n,err:=strconv.Atoi(raw)
 		if err!=nil||n<1||n>maximumPageSize {return ListQuery{},errors.New("invalid page size")}
@@ -93,8 +114,8 @@ func (h Handler) ServeListHTTP(w http.ResponseWriter,r *http.Request) {
 	}
 	actor,ok:=h.authorizedActor(w,r)
 	if !ok{return}
-	query,err:=listQuery(r)
-	if err!=nil {http.Error(w,"invalid pagination",http.StatusBadRequest);return}
+	query,err:=directoryQuery(r)
+ if err!=nil {http.Error(w,"invalid Program filters",http.StatusBadRequest);return}
 	repo,ok:=h.Repository.(ListRepository)
 	if !ok || repo==nil {
 		http.Error(w,"program service unavailable",http.StatusServiceUnavailable)
