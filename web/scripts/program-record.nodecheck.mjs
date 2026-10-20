@@ -85,3 +85,26 @@ test('Program discovery retains same-origin security and distinguishes sign-in/d
     assert.deepEqual(await fetchProgramPage('',new AbortController().signal),{status:'unavailable'})
   }finally{globalThis.fetch=original}
 })
+
+
+test('Program selector binds search and lifecycle without client scope overrides',async()=>{
+ const saved=globalThis.fetch
+ try{
+  globalThis.fetch=async(url,init)=>{
+   assert.equal(url,'/api/v1/programs?limit=25&cursor=opaque&q=Information+security&status=ACTIVE')
+   assert.equal(init.credentials,'same-origin')
+   assert.equal(init.cache,'no-store')
+   assert.deepEqual(init.headers,{Accept:'application/json'})
+   return {status:200,ok:true,json:async()=>({items:[record]})}
+  }
+  assert.deepEqual(await fetchProgramPage('opaque',new AbortController().signal,' Information security ','ACTIVE'),{
+   status:'ready',items:[record],nextCursor:'',
+  })
+  assert.deepEqual(await fetchProgramPage('',new AbortController().signal,'x'.repeat(81),'ACTIVE'),{
+   status:'unavailable',
+  })
+  assert.deepEqual(await fetchProgramPage('',new AbortController().signal,'','COMPLIANT'),{
+   status:'unavailable',
+  })
+ }finally{globalThis.fetch=saved}
+})
