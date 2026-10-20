@@ -33,8 +33,8 @@ WHERE p.tenant_id=$1::uuid
     )
   )
   AND ($5::timestamptz IS NULL OR (p.updated_at,p.id)<($5::timestamptz,$6::uuid))
-  AND ($8::text='' OR p.code ILIKE $8::text || '%' ESCAPE '\\'
-       OR p.name ILIKE '%' || $8::text || '%' ESCAPE '\\')
+  AND ($8::text='' OR p.code ILIKE $8::text || '%'
+       OR p.name ILIKE '%' || $8::text || '%')
   AND ($9::text='' OR p.status=$9::text)
 ORDER BY p.updated_at DESC,p.id DESC
 LIMIT $7
