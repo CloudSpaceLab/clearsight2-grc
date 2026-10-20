@@ -43,6 +43,9 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
     if err!=nil{return fmt.Errorf("Program inventory schema incompatible: %w",err)}
     if err:=prepared.Close();err!=nil{return fmt.Errorf("close Program inventory schema check: %w",err)}
   }
+  issues,err:=db.PrepareContext(ctx,visibleIssueListSQL)
+  if err!=nil{return fmt.Errorf("Program Issues schema incompatible: %w",err)}
+  if err:=issues.Close();err!=nil{return fmt.Errorf("close Issues schema check: %w",err)}
   return nil
  }
 
