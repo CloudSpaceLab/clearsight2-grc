@@ -99,3 +99,17 @@
 .program-page .program-inventory .assessment-table{min-width:450px}
 .program-page .program-inventory-note{margin:15px 0 0;font-size:11px;color:#8192ae}
 @media(max-width:600px){.program-page .program-inventory{padding:16px}}
+
+
+/* Compact scoped directory filters, using the approved Program tokens. */
+.program-page .program-directory-filters{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 15px}
+.program-page .program-directory-filters label{font-size:12px;font-weight:650;color:var(--pr-text)}
+.program-page .program-directory-filters input,
+.program-page .program-directory-filters select{border:1px solid var(--pr-line);border-radius:8px;padding:10px 12px;color:var(--pr-text);background:#fff;font:inherit;font-size:13px;min-height:40px}
+.program-page .program-directory-filters input{flex:1 1 180px;min-width:0}
+.program-page .program-directory-filters input:focus-visible,
+.program-page .program-directory-filters select:focus-visible{outline:2px solid var(--pr-blue);outline-offset:2px}
+@media(max-width:600px){
+ .program-page .program-directory-filters{align-items:stretch}
+ .program-page .program-directory-filters input{flex:1 1 100%}
+}
