@@ -39,6 +39,11 @@ func (r validRow) Scan(dest ...any) error {
 	*(dest[4].(*string)) = r.tenant
 	*(dest[5].(*string)) = r.entity
 	*(dest[6].(*string)) = r.path
+ *(dest[7].(*string))="SEC-001"
+ *(dest[8].(*string))="ACTIVE"
+ *(dest[9].(*string))="REGULATORY"
+ *(dest[10].(*string))="SECURITY"
+ *(dest[11].(*string))="NG"
 	return nil
 }
 type errorRow struct{err error}

@@ -49,15 +49,15 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
 // The authorization predicate is evaluated by PostgreSQL BEFORE retrieving a row.
 // A scoped actor cannot retrieve organization-wide or unassigned Programs.
 // Department grants match the exact normalized path, without implicit inheritance.
-const visibleProgramSQL = `
-SELECT
-	p.id::text,
-	p.name,
-	p.version,
-	p.updated_at,
-	p.tenant_id::text,
-	p.legal_entity_id::text,
-	COALESCE(to_jsonb(scope.department_path), '[]'::jsonb)::text
+// One canonical ordered projection for Program detail + discovery; keep the
+// existing tenant/legal-entity/department SQL predicates in both queries.
+const programMetadataColumns = `p.id::text,p.name,p.version,p.updated_at,
+ p.tenant_id::text,p.legal_entity_id::text,
+ COALESCE(to_jsonb(scope.department_path),'[]'::jsonb)::text,
+ p.code,p.status,p.program_type,p.owning_function,p.jurisdiction`
+
+const visibleProgramSQL = "SELECT " + programMetadataColumns + `
+
 FROM programs AS p
 LEFT JOIN organization_scopes AS scope
 	ON scope.id = p.organization_scope_id
@@ -131,7 +131,8 @@ func getVisible(ctx context.Context, q programQuerier, actor identity.Actor, id 
 	var pathJSON string
 	err = q.QueryRowContext(ctx, visibleProgramSQL,
 		actor.TenantID, actor.LegalEntityID, id, global, permissions,
-	).Scan(&p.ID, &p.Name, &version, &p.UpdatedAt, &p.TenantID, &p.LegalEntityID, &pathJSON)
+	).Scan(&p.ID, &p.Name, &version, &p.UpdatedAt, &p.TenantID, &p.LegalEntityID, &pathJSON,
+  &p.Code,&p.Status,&p.ProgramType,&p.OwningFunction,&p.Jurisdiction)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Record{}, ErrNotFound
 	}

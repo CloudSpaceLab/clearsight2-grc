@@ -4,7 +4,7 @@ import { fetchProgram, isProgramRecord, readProgramId } from '../src/features/pr
 
 const ID = '00000000-0000-4000-8000-000000000301'
 const other = '00000000-0000-4000-8000-000000000302'
-const record = { id: ID, name: 'Authorized Program', source_revision: '7', updated_at: '2026-10-19T14:00:00Z' }
+const record = { id: ID, name: 'Authorized Program', code: 'SEC-001', status: 'ACTIVE', program_type: 'REGULATORY', owning_function: 'SECURITY', jurisdiction: 'NG', source_revision: '7', updated_at: '2026-10-19T14:00:00Z' }
 
 test('selects only exactly one valid Program UUID in Program screen', () => {
   assert.equal(readProgramId('?screen=programs&program='+ID), ID)
@@ -20,6 +20,10 @@ test('rejects cross-record and incomplete response bodies', () => {
   assert.equal(isProgramRecord({...record, source_revision:''},ID),false)
   assert.equal(isProgramRecord({...record, updated_at:'garbage'},ID),false)
   assert.equal(isProgramRecord({...record, name:' '},ID),false)
+  assert.equal(isProgramRecord({...record, code:''},ID),false)
+  assert.equal(isProgramRecord({...record, status:'COMPLIANT'},ID),false)
+  assert.equal(isProgramRecord({...record, owning_function:''},ID),false)
+  assert.equal(isProgramRecord({...record, program_type:''},ID),false)
 })
 
 test('preserves HTTP denial states and never adds client auth headers', async () => {

@@ -11,10 +11,8 @@ import (
 	"github.com/CloudSpaceLab/clearsight2-grc/internal/identity"
 )
 
-const visibleProgramListSQL = `
-SELECT p.id::text,p.name,p.version,p.updated_at,
-       p.tenant_id::text,p.legal_entity_id::text,
-       COALESCE(to_jsonb(scope.department_path),'[]'::jsonb)::text
+const visibleProgramListSQL = "SELECT " + programMetadataColumns + `
+
 FROM programs AS p
 LEFT JOIN organization_scopes AS scope
   ON scope.id=p.organization_scope_id
@@ -68,7 +66,8 @@ func (r *SQLRepository) ListVisible(ctx context.Context, actor identity.Actor, q
 		var version int64
 		var pathJSON string
 		if err:=rows.Scan(&record.ID,&record.Name,&version,&record.UpdatedAt,
-			&record.TenantID,&record.LegalEntityID,&pathJSON);err!=nil {
+			&record.TenantID,&record.LegalEntityID,&pathJSON,
+   &record.Code,&record.Status,&record.ProgramType,&record.OwningFunction,&record.Jurisdiction);err!=nil {
 			return ListPage{},fmt.Errorf("scan Program list: %w",err)
 		}
 		if version<1||!isUUID(record.ID)||

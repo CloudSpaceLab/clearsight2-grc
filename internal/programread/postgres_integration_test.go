@@ -36,6 +36,8 @@ CREATE TABLE programs (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, legal_entity_id uuid NOT NULL,
  organization_scope_id uuid REFERENCES organization_scopes(id),
  name text NOT NULL, version bigint NOT NULL, updated_at timestamptz NOT NULL,
+ code text NOT NULL DEFAULT 'SEC-001', program_type text NOT NULL DEFAULT 'REGULATORY',
+ owning_function text NOT NULL DEFAULT 'SECURITY', jurisdiction text NOT NULL DEFAULT 'NG',
  status text NOT NULL DEFAULT 'ACTIVE', calculation_policy jsonb
 );
 CREATE TABLE continuity_events (

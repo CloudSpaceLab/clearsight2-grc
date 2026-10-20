@@ -30,7 +30,7 @@ func makeActor()identity.Actor{
   }
 }
 func makeRecord()Record{
-  return Record{ID:"P-100",Name:"Security Program",SourceRevision:"revision-1",
+  return Record{ID:"P-100",Name:"Security Program",Code:"SEC-001",Status:"ACTIVE",ProgramType:"REGULATORY",OwningFunction:"SECURITY",Jurisdiction:"NG",SourceRevision:"revision-1",
     UpdatedAt:time.Now().UTC(),TenantID:"TENANT-A",LegalEntityID:"LEGAL-A"}
 }
 func request(h Handler,url string) *httptest.ResponseRecorder {
