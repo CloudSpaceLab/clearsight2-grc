@@ -18,6 +18,11 @@ var ErrNotFound = errors.New("program not found")
 type Record struct {
   ID string `json:"id"`
   Name string `json:"name"`
+  Code string `json:"code"`
+  Status string `json:"status"`
+  ProgramType string `json:"program_type"`
+  OwningFunction string `json:"owning_function"`
+  Jurisdiction string `json:"jurisdiction"`
   SourceRevision string `json:"source_revision"`
   UpdatedAt time.Time `json:"updated_at"`
   TenantID string `json:"-"`
@@ -85,7 +90,7 @@ func hasScopedReadGrant(actor identity.Actor) bool {
 }
 
 func visibleToActor(actor identity.Actor, id string, p Record) bool {
-  if p.ID != id || p.Name == "" || len(p.Name) > 512 ||
+  if p.ID != id || !validProgramMetadata(p) ||
     p.TenantID != actor.TenantID || p.LegalEntityID != actor.LegalEntityID ||
     strings.TrimSpace(p.SourceRevision) == "" || p.UpdatedAt.IsZero() {
     return false
@@ -119,4 +124,18 @@ func (h Handler) authorizedActor(w http.ResponseWriter,r *http.Request) (identit
     return identity.Actor{},false
   }
   return actor,true
+}
+
+// validProgramMetadata is the shared Program workspace identity contract.
+// These fields already belong to v1 programs and are safe only after Program
+// and actor scope have been checked by the database read boundary.
+func validProgramMetadata(p Record) bool {
+ if p.Name==""||len(p.Name)>512 || p.Code==""||len(p.Code)>128 ||
+    p.ProgramType==""||len(p.ProgramType)>80 ||
+    p.OwningFunction==""||len(p.OwningFunction)>160 ||
+    len(p.Jurisdiction)>80 { return false }
+ switch p.Status{
+ case "DRAFT","ACTIVE","PAUSED","RETIRED":return true
+ default:return false
+ }
 }
