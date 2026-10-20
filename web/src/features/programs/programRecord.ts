@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 export type ProgramRecord = Readonly<{
   id: string
   name: string
+  code: string
+  status: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'RETIRED'
+  program_type: string
+  owning_function: string
+  jurisdiction: string
   source_revision: string
   updated_at: string
 }>
@@ -29,7 +34,12 @@ export function isProgramRecord(value: unknown, requestedId: string): value is P
   if (!value || typeof value !== 'object') return false
   const entry = value as Partial<ProgramRecord>
   return entry.id === requestedId &&
-    typeof entry.name === 'string' && entry.name.trim().length > 0 &&
+    typeof entry.name === 'string' && entry.name.trim().length > 0 && entry.name.length <= 512 &&
+    typeof entry.code === 'string' && entry.code.trim().length > 0 && entry.code.length <= 128 &&
+    (entry.status === 'ACTIVE' || entry.status === 'DRAFT' || entry.status === 'PAUSED' || entry.status === 'RETIRED') &&
+    typeof entry.program_type === 'string' && entry.program_type.trim().length > 0 && entry.program_type.length <= 80 &&
+    typeof entry.owning_function === 'string' && entry.owning_function.trim().length > 0 && entry.owning_function.length <= 160 &&
+    typeof entry.jurisdiction === 'string' && entry.jurisdiction.length <= 80 &&
     typeof entry.source_revision === 'string' && entry.source_revision.trim().length > 0 &&
     typeof entry.updated_at === 'string' && Number.isFinite(Date.parse(entry.updated_at))
 }

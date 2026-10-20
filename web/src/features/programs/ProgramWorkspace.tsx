@@ -36,9 +36,9 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
       <div className="heading-copy">
         <div className="eyebrow">PROGRAMS <span className="eyebrow-dot">·</span> WORKSPACE</div>
         <h1>{record?.name ?? 'Program workspace'}</h1>
-        <p>{record ? 'Program details' : 'Select a Program to review requirements, assessments and evidence.'}</p>
-        <div className="heading-meta"><span className="status program-status" role="status">{record ? "Program loaded" : programMessage}</span>
-          <span>{record ? "Record revision" : "Organization"} <strong>{record?.source_revision ?? "Not connected"}</strong></span></div>
+        <p>{record ? [record.code, record.program_type, record.owning_function].join(' · ') : 'Select a Program to review requirements, assessments and evidence.'}</p>
+        <div className="heading-meta"><span className="status program-status" role="status">{record ? record.status.charAt(0) + record.status.slice(1).toLowerCase() : programMessage}</span>
+          <span>{record ? "Revision" : "Organization"} <strong>{record?.source_revision ?? "Not connected"}</strong></span></div>
       </div>
       <svg className="mountains" viewBox="0 0 700 200" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="mount1" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#b5e3ff" stopOpacity="0"/><stop offset="1" stopColor="#a4d4ff" stopOpacity=".55"/></linearGradient><linearGradient id="mount2" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#6dc2fb" stopOpacity="0"/><stop offset="1" stopColor="#77bfff" stopOpacity=".33"/></linearGradient></defs><path fill="url(#mount1)" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/><path fill="url(#mount2)" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/></svg>
       <div className="heading-tools">
@@ -67,7 +67,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
         : <div role="list" className="program-directory-list">
           {directory.page.items.map(item => <div role="listitem" key={item.id}>
             <button className="program-directory-entry" type="button" onClick={() => onSelectProgram(item.id)}>
-              <span><strong>{item.name}</strong><small>Updated {new Date(item.updated_at).toLocaleDateString()}</small></span>
+              <span><strong>{item.name}</strong><small>{item.code} · {item.status.toLowerCase()} · Updated {new Date(item.updated_at).toLocaleDateString()}</small></span>
               <span className="program-directory-open">Open <Icon name="next"/></span>
             </button>
           </div>)}
@@ -135,7 +135,12 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
             </section>
             <section className="surface links-surface">
               <div className="surface-heading compact"><h2>Program setup</h2></div>
-              <div className="program-context-empty">Program owner, framework editions and linked forms are not connected.
+              <div className="program-context-empty">
+                {record ? <div>
+                  <div>Function <strong>{record.owning_function}</strong></div>
+                  <div>Jurisdiction <strong>{record.jurisdiction || 'Not specified'}</strong></div>
+                  <div>Frameworks and forms <strong>Not connected</strong></div>
+                </div> : 'Select a Program.'}
                 <div><button className="text-link" type="button" onClick={openFrameworks}>
                   Browse framework references <Icon name="next"/></button></div></div>
             </section>
