@@ -52,6 +52,9 @@ CREATE TABLE continuity_events (
 );
 CREATE TABLE matters (
  id uuid PRIMARY KEY, tenant_id uuid NOT NULL, legal_entity_id uuid NOT NULL,
+ reference text NOT NULL DEFAULT 'CASE-TEST',
+ title text NOT NULL DEFAULT 'Synthetic Issue',
+ matter_type text NOT NULL DEFAULT 'CONTROL_GAP', priority integer NOT NULL DEFAULT 3,
  status text NOT NULL, scope jsonb NOT NULL DEFAULT '{}'::jsonb,
  updated_at timestamptz NOT NULL
 );

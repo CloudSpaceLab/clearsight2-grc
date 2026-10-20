@@ -104,6 +104,9 @@ func startProgramRead(ctx context.Context, cfg programSettings) (http.Handler, *
 			return
 		}
 		switch r.Pattern {
+        case "GET /api/v1/programs/{id}/issues":
+            handler.ServeIssuesHTTP(w,r.WithContext(queryCtx))
+            return
         case "GET /api/v1/programs/{id}/overview":
             handler.ServeOverviewHTTP(w,r.WithContext(queryCtx))
             return
@@ -131,6 +134,7 @@ func buildRouter(c catalog.Catalog, protectedProgram http.Handler) *http.ServeMu
 		mux.Handle("GET /api/v1/programs/{id}", protectedProgram)
 		mux.Handle("GET /api/v1/programs/{id}/requirements", protectedProgram)
         mux.Handle("GET /api/v1/programs/{id}/overview", protectedProgram)
+        mux.Handle("GET /api/v1/programs/{id}/issues", protectedProgram)
         mux.Handle("GET /api/v1/programs/{id}/controls", protectedProgram)
         mux.Handle("GET /api/v1/programs/{id}/evidence-contracts", protectedProgram)
 	}
