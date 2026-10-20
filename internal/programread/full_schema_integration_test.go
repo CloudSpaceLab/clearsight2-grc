@@ -171,5 +171,12 @@ func TestPinnedV1CompleteSchemaActorScope(t *testing.T) {
 	if _,err:=reader.currentCoverageSnapshot(ctx,permitted,fixtureUUID(1303));!errors.Is(err,ErrNotFound){
 		t.Fatalf("cross-tenant Matter count reached outside actor scope: %v",err)
 	}
+	issues,err:=reader.ListVisibleIssues(ctx,permitted,fixtureUUID(1301),ListQuery{Limit:10})
+	if err!=nil||len(issues.Items)!=1||issues.Items[0].ID!=fixtureUUID(1601){
+		t.Fatalf("pinned v1 Matter list disclosed an unauthorized record: %+v %v",issues,err)
+	}
+	if _,err:=reader.ListVisibleIssues(ctx,permitted,fixtureUUID(1303),ListQuery{Limit:10});!errors.Is(err,ErrNotFound){
+		t.Fatalf("pinned v1 Issue listing bypassed tenant authorization: %v",err)
+	}
 
 }
