@@ -11,13 +11,17 @@ import (
 // Canonical current-Matter visibility predicate ported from the pinned v1
 // program_state_visibility_postgres.go. Program scope is authorized first.
 // The query returns only a count and newest update, not restricted Matter data.
-const visibleProgramMattersSQL = `
-SELECT count(DISTINCT m.id)::integer, max(m.updated_at)
-FROM matter_links ml
-JOIN matters m ON m.tenant_id=ml.tenant_id AND m.id=ml.matter_id
-WHERE ml.tenant_id=$1::uuid AND ml.program_id=$2::uuid
-  AND m.legal_entity_id=$4::uuid
+// Shared SQL predicate: both overview counts and Issues list use the same
+// tenant, entity, Program and explicit principal visibility rules.
+const visibleProgramMatterScopeSQL = `
+FROM matters m
+WHERE m.tenant_id=$1::uuid AND m.legal_entity_id=$4::uuid
   AND m.status NOT IN ('CLOSED','CANCELLED')
+  AND EXISTS (
+    SELECT 1 FROM matter_links ml
+    WHERE ml.tenant_id=m.tenant_id AND ml.matter_id=m.id
+      AND ml.program_id=$2::uuid
+  )
   AND CASE
     WHEN NOT (m.scope ? 'access') THEN true
     WHEN jsonb_typeof(m.scope->'access')<>'string' THEN false
@@ -42,6 +46,8 @@ WHERE ml.tenant_id=$1::uuid AND ml.program_id=$2::uuid
     ELSE false
   END
 `
+
+const visibleProgramMattersSQL = "SELECT count(*)::integer,max(m.updated_at)\n" + visibleProgramMatterScopeSQL
 
 type visibleMatterSummary struct {
  OpenCount int
