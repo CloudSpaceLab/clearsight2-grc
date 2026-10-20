@@ -1,6 +1,6 @@
 # ClearSight 2 — approved-design cutover register
 
-Updated: 2026-10-19. Applies only to v2; no claim of v1 UI parity or production deployment.
+Updated: 2026-10-20. Applies only to v2; no claim of complete visual parity, enterprise feature parity or production deployment.
 
 ## Source of truth
 - Approved source: [October 2026 archived designs](design/references/clearsight-2026-10/source/README.md), preserved byte-for-byte and guarded by `scripts/verify_design_references.py`.
@@ -15,7 +15,7 @@ Updated: 2026-10-19. Applies only to v2; no claim of v1 UI parity or production 
 | Control Tower / Home | `clearsight-designs-01-05` | Empty state only | Authenticated tenant/role/scope, honest source-backed measures |
 | Framework Library | `clearsight-framework-designs` | **Live metadata + approved two-column composition**, pending visual review | Verified editions, adopted/updated views, API-backed governance |
 | Framework Adoption | `clearsight-framework-designs` / `clearsight-designs-01-05` | Not implemented | Actor-bound edition/requirement review, maker-checker |
-| Program Workspace | `clearsight-program-designs` | Approved layout, tabs and no-data state implemented; real Program reads/actions pending | Scope, program/requirement state, approved calculation |
+| Program Workspace | `clearsight-program-designs` | Approved layout plus authenticated Program detail/directory, native code/status/type/function/jurisdiction, approved requirements, linked controls and active evidence contract references. Server-scoped search and lifecycle filters supported. | Missing authorized four overview metrics, activity assessments, adoption/forms, issues/attention drills, policy-safe verified scoring, mutations and live SSO deployment |
 | Assessment Workspace | `clearsight-designs-01-05` | Approved three-pane shell, keyboard tabs and honest empty states; visual review pending | Forms/response revision, assessor ownership, evidence |
 | Vendor Management | `clearsight-vendor-management-designs` | Not implemented | Third-party identity, forms, scoped access |
 | Operational Risk | `clearsight-operational-risk-designs` | Not implemented | Risk/loss/RCSA/KRI canonical owner and period model |
@@ -43,7 +43,11 @@ Updated: 2026-10-19. Applies only to v2; no claim of v1 UI parity or production 
 1. **Visual signoff**: compare paired Framework Library and Program Workspace screenshots (both at 390/768/1024/1280/1440). The Framework screenshots show matching panel hierarchy, but typography, content-dependent wrapping and interactive states still require review. The Program screenshot is currently an unconnected, explicitly empty presentation, **not** a preview of fictional bank posture.
 2. **Identity boundary before operational screens**: inspect/port selectively from v1 `internal/authority`, `internal/access`, `internal/commandauth`. Add tenant/group/actor enforcement tests. Do not create mutable Program APIs without this.
 3. **Governed catalog**: reuse only validated v1 framework catalog edition/provenance primitives; keep all 21 initial references metadata-only until verified clause rights and two-person approval.
-4. **Program + Assessment vertical slice**: implement the approved Program/Assessment HTML pair using same canonical runtime shell and a single immutable requirement/evidence/assessment model; bring in #433 scoring only after exact denominator/source tests.
+4. **Complete Program + Assessment vertical slice**: authenticated Program metadata, directory search, Requirements and Evidence reference reads are implemented. Next wire actor-authorized assessment and review projections, four real overview measures and scope-consistent drill records. Adopt #433's validated calculation only after approved source/denominator/permission checks; keep overview counts unavailable meanwhile.
 5. **Cross-role acceptance**: administrator → contributor → reviewer → authorizer, plus source-to-report permissions; then expand remaining specialized screens.
 
-**Status**: Framework Library and Program Workspace design compositions exist. Program has no authenticated data contract and does not offer mutations. Visual parity is not yet adjudicated. Authenticated operational feature parity is not achieved. This record does not authorize merging v2 into a production cutover.
+**Status:** Framework Library and Program Workspace design compositions exist. Program has **authenticated read-only metadata and reference APIs** under an explicit signed-identity/database activation gate, but not a deployed trusted identity edge or operational mutations. Four overview measures, evidence/assessment decisions, full actor-visible compliance calculation and other approved workspaces remain incomplete. Existing screenshot CI captures the empty Program state and is review evidence only—not proof of populated-page pixel parity or production readiness.
+
+Backend composition contract: [DESIGN-DRIVEN-READ-MODELS.md](DESIGN-DRIVEN-READ-MODELS.md). Use its approved-HTML-to-domain-owner mapping before implementing further read models. Prefer source-owned, actor-scoped bounded projections by visible screen/tab; reuse v1 governance engines and combine related dashboard measures only when the same scoped source revision and permission-aware drill are verified. Do **not** recreate v1's full aggregate API or new parallel tables just to fill cards.
+
+This register does not authorize production cutover.
