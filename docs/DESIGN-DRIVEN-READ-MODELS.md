@@ -10,6 +10,12 @@ The current tranche uses a **single** `programMetadataColumns` SQL projection fo
 
 No new Program identity table, materialized status, adapter duplication or client-side authorization is introduced.
 
+### Bounded Program selection
+
+The Program selection surface extends **only the existing** `GET /api/v1/programs` list with optional `q` (code/name) and `status` (native lifecycle). Search and status predicates are applied in PostgreSQL **alongside** tenant, legal entity and exact department grants, before keyset pagination. User input is length bounded, status allow-listed, and LIKE wildcards escaped as literals. No client may filter another tenant by supplying a tenant or department parameter.
+
+The directory resets its keyset cursor when search/status changes; its responses are aborted/invalidated on route changes. Other lists (requirements, controls, evidence) reject these directory-only parameters to avoid silently ignored filters. Large tenant performance and index/EXPLAIN review remain required before enterprise production release.
+
 ## Program Workspace contract
 
 | Approved HTML surface | Backend/source | Request and lifecycle | Important exclusion |
