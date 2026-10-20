@@ -6,6 +6,7 @@ import { useProgramDirectory } from './programDirectory'
 import { useApprovedRequirements } from './approvedRequirements'
 import { ProgramInventoryPanel } from './ProgramInventoryPanel'
 import { useProgramOverview } from './programOverview'
+import { useProgramIssues } from './programIssues'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -35,6 +36,8 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
   const requirements=useApprovedRequirements(record?.id ?? null,record?.source_revision ?? null,section==='Requirements' && !!record)
   const overview=useProgramOverview(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && !!record)
   const coverage=overview.status==='ready' ? overview.overview.assessment_coverage : null
+  const issues=useProgramIssues(record?.id ?? null,record?.source_revision ?? null,
+    !!record && (section==='Overview'||section==='Issues'))
   return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
       <Icon name="next"/><span>Workspace</span></nav>
@@ -165,7 +168,26 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
             <section className="surface actions-surface">
               <div className="surface-heading compact"><div><h2>Needs attention</h2>
                 <p>Actionable items in this Program</p></div></div>
-              <div className="program-context-empty">No authorized action items available.</div>
+              {issues.result.status==='ready' ?
+                issues.result.page.items.length===0 ?
+                  <div className="program-context-empty" role="status">No visible open issues.</div>
+                : <div className="program-attention-list">
+                  {issues.result.page.items.slice(0,3).map(issue=>
+                    <div className="program-attention-item" key={issue.id}>
+                      <strong>{issue.reference}</strong>
+                      <span>{issue.title}</span>
+                      <small>{issue.status.replaceAll('_',' ').toLowerCase()}</small>
+                    </div>)}
+                  <button className="text-link" type="button" onClick={()=>setSection('Issues')}>
+                    View issues <Icon name="next"/>
+                  </button>
+                </div>
+              : <div className="program-context-empty" role={issues.result.status==='unavailable'?'alert':'status'}>
+                {issues.result.status==='loading'?'Loading issues…':
+                issues.result.status==='forbidden'?'Access denied.':
+                issues.result.status==='unauthenticated'?'Sign in required.':
+                'Issues unavailable.'}
+              </div>}
             </section>
             <section className="surface links-surface">
               <div className="surface-heading compact"><h2>Program setup</h2></div>
@@ -233,6 +255,41 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
           : section==='Evidence' && record
             ? <ProgramInventoryPanel kind="evidence-contracts" programId={record.id}
                 revision={record.source_revision} onRefreshProgram={retry}/>
+          :section==='Issues' && record ?
+            <section className="surface program-section-message" aria-label="Visible Program issues">
+              {issues.result.status==='ready' ?
+                issues.result.page.items.length===0 ?
+                  <p role="status">No visible open issues.</p>
+                : <div className="assessment-table-wrap"><table className="assessment-table">
+                    <caption className="sr-only">Principal-visible open issues</caption>
+                    <thead><tr><th>Reference</th><th>Issue</th><th>Type</th><th>Status</th><th>Priority</th><th>Updated</th></tr></thead>
+                    <tbody>{issues.result.page.items.map(issue=><tr key={issue.id}>
+                      <td>{issue.reference}</td><td>{issue.title}</td>
+                      <td>{issue.type.replaceAll('_',' ')}</td>
+                      <td>{issue.status.replaceAll('_',' ')}</td>
+                      <td>{issue.priority}</td>
+                      <td>{new Date(issue.updated_at).toLocaleDateString()}</td>
+                    </tr>)}</tbody>
+                  </table></div>
+              :<div className="program-context-empty" role={issues.result.status==='unavailable'?'alert':'status'}>
+                {issues.result.status==='loading'?'Loading issues…':
+                 issues.result.status==='unauthenticated'?'Sign in required.':
+                 issues.result.status==='forbidden'?'Access denied.':
+                 issues.result.status==='changed'?'Program changed. Reload the Program.':
+                 'Issues unavailable.'}
+                {(issues.result.status==='changed'||issues.result.status==='unavailable')&&
+                  <button className="text-link" type="button" onClick={()=>{
+                    if(issues.result.status==='changed')retry()
+                    issues.retry()
+                  }}>Retry</button>}
+              </div>}
+              {issues.result.status==='ready' && (issues.hasPrevious||!!issues.result.page.next_cursor)&&
+                <nav className="program-directory-pagination" aria-label="Issue pages">
+                  <button className="button" type="button" onClick={issues.previous} disabled={!issues.hasPrevious}>Previous</button>
+                  <button className="button" type="button" onClick={issues.next}
+                    disabled={!issues.result.page.next_cursor}>Next</button>
+                </nav>}
+            </section>
           :<div className="surface program-section-message" role="status">
             <h3>{section==='Requirements'?'Select a Program':`No ${section.toLowerCase()} available`}</h3>
             <p>{section==='Requirements'?'Open an authorized Program to view current approved requirements.'
