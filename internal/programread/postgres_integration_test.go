@@ -40,6 +40,11 @@ CREATE TABLE programs (
  owning_function text NOT NULL DEFAULT 'SECURITY', jurisdiction text NOT NULL DEFAULT 'NG',
  status text NOT NULL DEFAULT 'ACTIVE', calculation_policy jsonb
 );
+CREATE TABLE program_state_snapshots (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, program_id uuid NOT NULL,
+ program_version bigint NOT NULL, projection_version bigint NOT NULL,
+ generated_at timestamptz NOT NULL, calculation jsonb
+);
 CREATE TABLE continuity_events (
  tenant_id uuid NOT NULL, aggregate_type text NOT NULL, aggregate_id uuid NOT NULL,
  aggregate_version bigint NOT NULL, event_type text NOT NULL, payload jsonb NOT NULL,

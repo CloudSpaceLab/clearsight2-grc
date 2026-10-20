@@ -85,6 +85,7 @@ func TestRouterKeepsTenantRouteDisabledByDefault(t *testing.T) {
 		{"/api/v1/frameworks", http.StatusOK},
 		{"/api/v1/programs/00000000-0000-4000-8000-000000000301", http.StatusNotFound},
 		{"/api/v1/programs/00000000-0000-4000-8000-000000000301/requirements", http.StatusNotFound},
+        {"/api/v1/programs/00000000-0000-4000-8000-000000000301/overview", http.StatusNotFound},
         {"/api/v1/programs/00000000-0000-4000-8000-000000000301/controls",http.StatusNotFound},
         {"/api/v1/programs/00000000-0000-4000-8000-000000000301/evidence-contracts",http.StatusNotFound},
 	}{
