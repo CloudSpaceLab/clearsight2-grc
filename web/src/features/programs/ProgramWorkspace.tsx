@@ -5,6 +5,7 @@ import { useProgramRecord } from './programRecord'
 import { useProgramDirectory } from './programDirectory'
 import { useApprovedRequirements } from './approvedRequirements'
 import { ProgramInventoryPanel } from './ProgramInventoryPanel'
+import { useProgramOverview } from './programOverview'
 import './program.css'
 
 const sections = ['Overview','Requirements','Assessments','Evidence','Issues','Activity'] as const
@@ -32,6 +33,8 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
   const [section,setSection]=useState<Section>('Overview')
   const tabs=useWorkspaceTabs(sections,section,setSection)
   const requirements=useApprovedRequirements(record?.id ?? null,record?.source_revision ?? null,section==='Requirements' && !!record)
+  const overview=useProgramOverview(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && !!record)
+  const coverage=overview.status==='ready' ? overview.overview.assessment_coverage : null
   return <>
     <nav className="crumbs" aria-label="Breadcrumb"><span>Programs</span>
       <Icon name="next"/><span>Workspace</span></nav>
@@ -45,7 +48,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
       </div>
       <svg className="mountains" viewBox="0 0 700 200" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="mount1" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#b5e3ff" stopOpacity="0"/><stop offset="1" stopColor="#a4d4ff" stopOpacity=".55"/></linearGradient><linearGradient id="mount2" x1="0" y1="1" x2="0" y2="0"><stop stopColor="#6dc2fb" stopOpacity="0"/><stop offset="1" stopColor="#77bfff" stopOpacity=".33"/></linearGradient></defs><path fill="url(#mount1)" d="M0 176Q68 128 122 153T262 103T395 114T531 73T700 145V200H0Z"/><path fill="url(#mount2)" d="M0 195Q90 177 164 139T332 161T472 98T700 127V200H0Z"/></svg>
       <div className="heading-tools">
-        <span className="prototype-tag"><Icon name="info"/>{record ? "Operational metrics unavailable" : programMessage}</span>
+        <span className="prototype-tag"><Icon name="info"/>{record ? coverage ? "Assessment coverage available" : "Operational metrics unavailable" : programMessage}</span>
         <div className="period-switch"><label htmlFor="program-period">Activity period</label>
           <select id="program-period" aria-label="Activity period" disabled><option>Last 90 days</option></select></div>
         <button className="button primary" disabled type="button" title="Requires an authorized Program">
@@ -112,11 +115,14 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
     {section==='Overview'
       ? <section role="tabpanel" aria-labelledby="program-tab-overview" id="program-panel-overview" className="page-panel">
         <div className="metric-grid" aria-label="Program measures unavailable">
-          {metrics.map(item=><article className="metric-card" key={item.label}>
+          {metrics.map((item,index)=><article className="metric-card" key={item.label}>
             <div className="metric-top"><span>{item.label}</span>
               <Icon name={item.icon}/></div>
-            <div className="metric-value empty-value">— <span>{item.suffix}</span></div>
-            <div className="metric-info">Not connected</div>
+            {index===0 && coverage ?
+              <><div className="metric-value">{coverage.assessed} <span>/ {coverage.eligible} requirements</span></div>
+                <div className="metric-info">{coverage.quality==='partial'?'Coverage incomplete':'Assessed requirements'} · {coverage.unknown} unknown</div></>
+              : <><div className="metric-value empty-value">— <span>{item.suffix}</span></div>
+                <div className="metric-info">{index===0 && overview.status==='loading' && record ? 'Loading' : 'Not available'}</div></>}
           </article>)}
         </div>
         <div className="dashboard-grid">
@@ -126,8 +132,14 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram}:{ope
                 <p>Applicable requirements and assessment status</p></div>
                 <button type="button" className="text-link" onClick={()=>setSection('Requirements')}>
                   All requirements <Icon name="next"/></button></div>
-              <div className="program-empty"><strong>Coverage unavailable</strong>
-                No applicable requirements have been loaded for an authorized Program.</div>
+              {coverage ? <div className="program-empty">
+                  <strong>{coverage.assessed} of {coverage.eligible} assessed requirements</strong>
+                  <progress value={coverage.assessed} max={Math.max(1,coverage.eligible)}
+                    aria-label="Assessed requirement coverage"/>
+                  <span>{coverage.excluded} excluded · {coverage.unknown} unknown · As of {new Date(coverage.generated_at).toLocaleDateString()}</span>
+                  <p>Support and gap breakdowns require separate verified assessment records.</p>
+                </div> : <div className="program-empty"><strong>Coverage unavailable</strong>
+                  A current approved requirement assessment is required.</div>}
               <div className="area-head"><strong>By control area</strong>
                 <div className="mini-tabs" role="group" aria-label="Control area filter">
                   <button type="button" className="selected" disabled>All</button>
