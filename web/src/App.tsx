@@ -1,8 +1,9 @@
+import { V1SessionProvider, useV1Session } from './features/programs/V1Session'
 import { useEffect, useState } from 'react'
 import { DesignShell } from './shared/DesignShell'
 import type { Screen } from './shared/DesignShell'
 import { FrameworkLibrary } from './features/frameworks/FrameworkLibrary'
-import { HomeEmpty } from './features/home/HomeEmpty'
+import { HomeWorkspace } from './features/home/HomeWorkspace'
 import { ProgramWorkspace } from './features/programs/ProgramWorkspace'
 import { readProgramId } from './features/programs/programRecord'
 import { AssessmentWorkspace } from './features/assessments/AssessmentWorkspace'
@@ -15,8 +16,12 @@ function routeFromLocation(): { screen: Screen; programId: string | null } {
   return { screen, programId: readProgramId(window.location.search) }
 }
 
-export default function App() {
+const v1Enabled = import.meta.env.VITE_PROGRAM_BACKEND === 'v1'
+export default function App() { return v1Enabled ? <V1SessionProvider><AppContent/></V1SessionProvider> : <AppContent/> }
+function AppContent() {
+  const { context } = useV1Session()
   const [route, setRoute] = useState(routeFromLocation)
+  const [formDirty, setFormDirty] = useState(false)
   useEffect(() => {
     const sync = () => setRoute(routeFromLocation())
     window.addEventListener('popstate', sync)
@@ -24,6 +29,8 @@ export default function App() {
   }, [])
 
   function navigate(screen: Screen, programId?: string) {
+    if (formDirty && !window.confirm('You have unsaved form changes. Leave without saving?')) return
+    setFormDirty(false)
     const location = new URL(window.location.href)
     location.searchParams.set('screen', screen)
     if (screen === 'programs' && programId) location.searchParams.set('program', programId)
@@ -32,13 +39,14 @@ export default function App() {
     setRoute({ screen, programId: screen === 'programs' ? programId ?? null : null })
   }
 
-  return <DesignShell screen={route.screen} onNavigate={screen => navigate(screen)}>
-    {route.screen === 'home' ? <HomeEmpty browseFrameworks={() => navigate('frameworks')} />
+  return <DesignShell sessionName={v1Enabled ? context?.actor.name : undefined} screen={route.screen} onNavigate={screen => navigate(screen)}>
+    {route.screen === 'home' ? <HomeWorkspace onNavigate={screen => navigate(screen)} />
       : route.screen === 'programs'
-        ? <ProgramWorkspace programId={route.programId}
+        ? <ProgramWorkspace key={`${context?.actor.id || 'signed-out'}:${route.programId}`} programId={route.programId}
             onSelectProgram={id => navigate('programs', id)}
+            onBackPrograms={() => navigate('programs')}
             openFrameworks={() => navigate('frameworks')} />
-      : route.screen === 'assessment' ? <AssessmentWorkspace openPrograms={() => navigate('programs')} />
+      : route.screen === 'assessment' ? <AssessmentWorkspace onAuthoringDirty={setFormDirty} />
       : <FrameworkLibrary />}
   </DesignShell>
 }
