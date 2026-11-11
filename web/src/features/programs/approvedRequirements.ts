@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 import { useEffect, useState } from 'react'
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -52,7 +53,7 @@ export async function fetchApprovedRequirements(
   const params = new URLSearchParams({ limit: String(limit) })
   if (cursor) params.set('cursor', cursor)
   try {
-    const response = await fetch(
+    const response = await programFetch(
       `/api/v1/programs/${encodeURIComponent(id)}/requirements?${params.toString()}`, {
         method: 'GET', credentials: 'same-origin', cache: 'no-store',
         headers: { Accept: 'application/json' }, signal,

@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 import { useEffect, useState } from 'react'
 
 export type ProgramIssue = Readonly<{
@@ -53,7 +54,7 @@ export async function fetchProgramIssues(
  const q=new URLSearchParams({limit:'25'})
  if(cursor)q.set('cursor',cursor)
  try{
-  const r=await fetch(`/api/v1/programs/${id}/issues?${q}`,{
+  const r=await programFetch(`/api/v1/programs/${id}/issues?${q}`,{
    method:'GET',credentials:'same-origin',cache:'no-store',
    headers:{Accept:'application/json'},signal,
   })
