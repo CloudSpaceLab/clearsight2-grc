@@ -1,0 +1,6 @@
+web/dist/
+web/node_modules/
+.local/
+/scripts/local.ps1
+.env
+.env.local
