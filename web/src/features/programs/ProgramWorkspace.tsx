@@ -1,6 +1,8 @@
 import { useV1Session } from './V1Session'
 import { ConnectedProgramWorkflows } from './ConnectedProgramWorkflows'
 import { CreateProgramDialog } from './CreateProgramDialog'
+import { CreateRequirement } from './CreateRequirement'
+import { RequirementReviewPanel } from './RequirementReviewPanel'
 import { useEffect, useRef, useState } from 'react'
 import { isSupportingDocumentRequest, programRequests, scoped, v1 } from './v1Client'
 import type { RequestRecord, V1Context } from './v1Client'
@@ -62,6 +64,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
     : 'No Program selected'
   const [section,setSection]=useState<Section>('Overview')
   const [showRequirements,setShowRequirements]=useState(false)
+  const [requirementRefresh,setRequirementRefresh]=useState(0)
   const tabs=useWorkspaceTabs(sections,section,setSection)
   const requirements=useApprovedRequirements(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && showRequirements && !!record)
   const overview=useProgramOverview(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && !!record)
@@ -70,6 +73,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
     !!record && (section==='Overview'||section==='Issues'))
   const assessmentCount=useVisibleAssessmentCount(context,record?.id??null,connected&&section==='Overview')
   const requirementContent = record ? <><section className="surface program-section-message" aria-label="Approved requirement references">
+            {connected&&context&&<CreateRequirement context={context} programId={record.id} onCreated={()=>{setRequirementRefresh(n=>n+1);retry();requirements.retry()}}/>}{connected&&context&&<RequirementReviewPanel context={context} programId={record.id} refreshKey={requirementRefresh} onChanged={()=>{retry();requirements.retry()}}/>}
             {requirements.state.status==='loading' ? <p role="status">Loading approved requirements…</p>
               :requirements.state.status==='ready' ?
                 requirements.state.page.items.length===0 ? <p role="status">No current approved requirements.</p>
@@ -99,7 +103,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
                 <button className="button" type="button" onClick={requirements.next} disabled={!requirements.state.page.next_cursor}>Next</button>
               </nav>}
             {requirements.state.status==='ready' && <p className="program-context-empty">
-              Approved source references only. Applicability, controls and evidence are assessed separately.
+              Approved requirements. Applicability, controls and evidence are assessed separately.
             </p>}
           </section>
           <ProgramInventoryPanel kind="controls" programId={record.id}
