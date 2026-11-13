@@ -3,19 +3,21 @@ import { Icon } from '../../shared/Icons'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { useV1Session } from '../programs/V1Session'
 import { v1 } from '../programs/v1Client'
-import { FormAuthoring } from './FormAuthoring'
+import { SimpleFormAuthoring } from './SimpleFormAuthoring'
+import { AssignedAssessment, AssignedPicker } from './AssignedAssessment'
+import type { AssignedRequest } from './AssignedAssessment'
 import './assessment.css'
 
 const modes=['questions','import','review'] as const
 type Mode = typeof modes[number]
-type LibraryForm = {id:string;name:string;purpose?:string;status:string;version:number;is_current:boolean;sections?:{id:string;title:string;help?:string}[];fields:{id:string;section_id?:string;label:string;type:string;required:boolean;description?:string}[]}
+type LibraryForm = {id:string;name:string;purpose?:string;status:string;version:number;is_current:boolean;sections?:{id:string;title:string;help?:string}[];fields:{id:string;section_id?:string;label:string;type:string;required:boolean;description?:string;options?:string[]}[]}
 
 export function AssessmentWorkspace({onAuthoringDirty}:{onAuthoringDirty:(dirty:boolean)=>void}) {
   const [authoring,setAuthoring]=useState(false)
-  return <><div hidden={authoring}><AssessmentBrowser openAuthoring={()=>setAuthoring(true)}/></div>{authoring&&<FormAuthoring onDirty={onAuthoringDirty} onBack={()=>setAuthoring(false)}/>}</>
+  return <><div hidden={authoring}><AssessmentBrowser openAuthoring={()=>setAuthoring(true)} onDirty={onAuthoringDirty}/></div>{authoring&&<SimpleFormAuthoring onDirty={onAuthoringDirty} onBack={()=>setAuthoring(false)}/>}</>
 }
 
-function AssessmentBrowser({openAuthoring}:{openAuthoring:()=>void}) {
+function AssessmentBrowser({openAuthoring,onDirty}:{openAuthoring:()=>void;onDirty:(dirty:boolean)=>void}) {
   const [mode,setMode]=useState<Mode>('questions')
   const {context}=useV1Session()
   const [forms,setForms]=useState<LibraryForm[]>([])
@@ -23,12 +25,15 @@ function AssessmentBrowser({openAuthoring}:{openAuthoring:()=>void}) {
   const [sectionId,setSectionId]=useState('')
   const [reload,setReload]=useState(0)
   const [loadState,setLoadState]=useState<'loading'|'ready'|'error'>('loading')
+  const [assignment,setAssignment]=useState<{scope:string;request:AssignedRequest}|null>(null)
   useEffect(()=>{if(!context){setForms([]);setFormId('');setLoadState('ready');return}let active=true;setLoadState('loading');void v1<{items:LibraryForm[]}>('/api/v1/form-templates?limit=100').then(result=>{if(!Array.isArray(result.items))throw Error('Invalid form list');if(active){setForms(result.items.filter(item=>item&&typeof item.id==='string'&&typeof item.name==='string'&&typeof item.version==='number'&&Array.isArray(item.fields)));setLoadState('ready')}}).catch(()=>{if(active){setForms([]);setLoadState('error')}});return()=>{active=false}},[context,reload])
   const form=forms.find(item=>`${item.id}:${item.version}`===formId)
   const fields=form?.fields.filter(field=>!sectionId||field.section_id===sectionId)||[]
   const sections=form?.sections||[]
   const sectionIndex=sections.findIndex(section=>section.id===sectionId)
   const tabs=useWorkspaceTabs(modes,mode,setMode)
+  const scope=context?`${context.tenant.id}:${context.legal_entity.id}:${context.actor.id}`:''
+  if(context&&assignment?.scope===scope)return <AssignedAssessment key={assignment.request.id} request={assignment.request} context={context} onBack={()=>setAssignment(null)} onDirty={onDirty}/>
   return <>
     <nav className="crumbs assessment-crumbs" aria-label="Breadcrumb">
       <span>Forms</span><Icon name="next"/><span aria-current="page">Assessment workspace</span>
@@ -77,12 +82,13 @@ function AssessmentBrowser({openAuthoring}:{openAuthoring:()=>void}) {
         <span><i className="status-pin gray"/><strong>Unanswered —</strong></span>
       </div>
     </section>
+    {mode==='questions'&&context&&form&&<AssignedPicker key={`${scope}:${form.id}`} context={context} formId={form.id} onOpen={request=>setAssignment({scope,request})}/>}
     {mode==='questions'&&<div id="assessment-view-questions" role="tabpanel"
       aria-labelledby="assessment-tab-questions" className="assessment-body">
       <aside className="sections-panel surface" aria-label="Questionnaire sections">
         <div className="panel-eyebrow">Questionnaire</div><h2>Sections</h2>
         <label className="assessment-form-selector">Form<select value={formId} disabled={!context||loadState==='loading'} onChange={event=>{setFormId(event.target.value);setSectionId('')}}><option value="">Select a form</option>{forms.map(item=><option key={`${item.id}:${item.version}`} value={`${item.id}:${item.version}`}>{item.name} · v{item.version} · {item.status}</option>)}</select></label>
-        <div className="sections-list">{form ? <><button type="button" className={'section-entry'+(!sectionId?' selected':'')} aria-pressed={!sectionId} onClick={()=>setSectionId('')}><span className="section-name">All questions</span><span className="section-count">{form.fields.length}</span></button>{sections.map(section=><button key={section.id} type="button" className={'section-entry'+(sectionId===section.id?' selected':'')} aria-pressed={sectionId===section.id} onClick={()=>setSectionId(section.id)}><span className="section-name">{section.title}</span><span className="section-count">{form.fields.filter(field=>field.section_id===section.id).length}</span></button>)}</> : <div className="assessment-empty"><strong>{loadState==='loading'?'Loading forms…':loadState==='error'?'Forms unavailable':context?'No form selected':'Sign in required'}</strong>{loadState==='error'?<>The form library could not be loaded. <button type="button" className="assessment-retry" onClick={()=>setReload(value=>value+1)}>Try again</button></>:context?'Select a form to inspect its questions.':'Sign in to load authorized forms.'}</div>}</div>
+        <div className="sections-list">{form ? <><button type="button" className={'section-entry'+(!sectionId?' selected':'')} aria-pressed={!sectionId} onClick={()=>setSectionId('')}><span className="section-icon"><Icon name="form"/></span><span className="section-copy"><strong>All questions</strong><small>{form.fields.length} questions</small></span><Icon name="next"/></button>{sections.map((section,index)=><button key={section.id} type="button" className={'section-entry'+(sectionId===section.id?' selected':'')} aria-pressed={sectionId===section.id} onClick={()=>setSectionId(section.id)}><span className="section-icon">{String(index+1).padStart(2,'0')}</span><span className="section-copy"><strong>{section.title}</strong><small>{form.fields.filter(field=>field.section_id===section.id).length} questions</small></span><Icon name="next"/></button>)}</> : <div className="assessment-empty"><strong>{loadState==='loading'?'Loading forms…':loadState==='error'?'Forms unavailable':context?'No form selected':'Sign in required'}</strong>{loadState==='error'?<>The form library could not be loaded. <button type="button" className="assessment-retry" onClick={()=>setReload(value=>value+1)}>Try again</button></>:context?'Select a form to inspect its questions.':'Sign in to load authorized forms.'}</div>}</div>
         <div className="section-separator"/>
         <div className="section-brief"><Icon name="info"/><p>Previously recorded answers require authorized source revision and confirmation.</p></div>
         <button type="button" className="secondary-link" onClick={()=>setMode('import')}>
@@ -90,10 +96,10 @@ function AssessmentBrowser({openAuthoring}:{openAuthoring:()=>void}) {
       </aside>
       <div className="questions-column">
         <div className="section-title-row"><div>
-          <div className="panel-eyebrow">Questions</div><h2>{form?(sectionId?form.sections?.find(section=>section.id===sectionId)?.title||'Questions':'All questions'):'Questions unavailable'}</h2>
-          <p>{form?'Form definition · Responses are collected in a Program assessment.':'Questionnaire content will appear after form selection.'}</p></div>
+          <div className="panel-eyebrow">{sectionId?`Section ${String(sectionIndex+1).padStart(2,'0')} of ${String(sections.length).padStart(2,'0')}`:'Questions'}</div><h2>{form?(sectionId?form.sections?.find(section=>section.id===sectionId)?.title||'Questions':'All questions'):'Questions unavailable'}</h2>
+          <p>{form?(sections[sectionIndex]?.help||'Form definition · Responses are collected in a Program assessment.'):'Questionnaire content will appear after form selection.'}</p></div>
           <span className="section-progress">{form?`${fields.length} questions`:'—'}</span></div>
-        <div className="questions-stack">{form ? fields.length ? fields.map(field=><article className="question-card" key={field.id}><div className="question-number">Question {form.fields.indexOf(field)+1}{field.required?' · Required':''}</div><h3 className="question-text">{field.label}</h3>{field.description&&<p className="question-help">{field.description}</p>}<p className="assessment-field-type">Response type: {field.type.replaceAll('_',' ')}</p></article>) : <div className="assessment-empty">No questions in this section.</div> : <div className="assessment-empty"><strong>No authorized questions</strong>No responses, answer options or mappings are available.</div>}</div>
+        <div className="questions-stack">{form ? fields.length ? fields.map(field=><article className="question-card" key={field.id}><div className="question-meta"><span className="question-code">Question {form.fields.indexOf(field)+1}</span><span className="question-state">{field.required?'Required':'Optional'}</span></div><h3 className="question-text">{field.label}</h3>{field.description&&<p className="question-help">{field.description}</p>}<div className="assessment-answer-definition"><span>Response type: {field.type.replaceAll('_',' ')}</span>{Array.isArray(field.options)&&field.options.length>0&&<div className="assessment-definition-options" aria-label="Available answer choices">{field.options.map((option,index)=><span key={`${index}:${option}`}>{option}</span>)}</div>}</div></article>) : <div className="assessment-empty">No questions in this section.</div> : <div className="assessment-empty"><strong>No authorized questions</strong>No responses, answer options or mappings are available.</div>}</div>
         <footer className="question-footer">
           <button type="button" className="button" disabled={!form||!sectionId} onClick={()=>setSectionId(sectionIndex>0?(sections[sectionIndex-1]?.id||''):'')}>Previous</button>
           <div className="question-footer-right"><span>Browse the form definition</span>

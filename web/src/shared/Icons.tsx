@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 export type IconKey = 'home'|'layers'|'grid'|'form'|'users'|'shield'|'lock'|'chart'|'setting'|
-  'search'|'chevron'|'next'|'bell'|'globe'|'plus'|'filter'|'info'|'external'
+  'search'|'chevron'|'next'|'bell'|'globe'|'plus'|'filter'|'info'|'external'|'trash'
 const icons:Record<IconKey,ReactNode> = {
   home:<><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-8h6v8"/></>,
   grid:<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
@@ -18,6 +18,7 @@ const icons:Record<IconKey,ReactNode> = {
   bell:<path d="M18 8a6 6 0 0 0-12 0c0 8-3 8-3 10h18c0-2-3-2-3-10M10 22h4"/>,
   globe:<><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c6 6 6 14 0 20M12 2c-6 6-6 14 0 20"/></>,
   plus:<path d="M12 4v16M4 12h16"/>,
+  trash:<path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/>,
   filter:<path d="M4 7h16M7 12h10M10 17h4"/>,
   info:<><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/></>,
   external:<><path d="M14 4h6v6m0-6-9 9"/><path d="M20 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1 1-1h6"/></>
