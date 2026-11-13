@@ -1,3 +1,7 @@
+# Repository responsibilities
+
+The frontend application and frontend tests belong in `C:\Projects\clearsight2-grc` (v2). Backend services, backend tests, API contracts, database migrations and backend configuration belong in `C:\Projects\clearsight-grc` (v1). Implement backend changes in v1; do not leave backend implementation or tests in a v2 copy. Connect the v2 frontend to the existing v1 backend contracts. Preserve each repository's existing changes and follow its own `AGENTS.md` instructions.
+
 # UI work
 
 For prototype requests, first use the relevant HTML/CSS/JS templates under `docs/design/references/clearsight-2026-10/source/`. Create a separate prototype derived from those templates and preserve archived originals. Prototype work does not authorize implementation in the app; keep app implementation as a separate step requested by the user.
