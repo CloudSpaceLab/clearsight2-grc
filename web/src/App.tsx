@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { DesignShell } from './shared/DesignShell'
 import type { Screen } from './shared/DesignShell'
 import { FrameworkLibrary } from './features/frameworks/FrameworkLibrary'
+import { V1FrameworkLibrary } from './features/frameworks/V1FrameworkLibrary'
 import { HomeWorkspace } from './features/home/HomeWorkspace'
 import { ProgramWorkspace } from './features/programs/ProgramWorkspace'
 import { readProgramId } from './features/programs/programRecord'
@@ -47,6 +48,6 @@ function AppContent() {
             onBackPrograms={() => navigate('programs')}
             openFrameworks={() => navigate('frameworks')} />
       : route.screen === 'assessment' ? <AssessmentWorkspace onAuthoringDirty={setFormDirty} />
-      : <FrameworkLibrary />}
+      : v1Enabled ? <V1FrameworkLibrary key={`${context?.tenant.id||''}:${context?.legal_entity.id||''}:${context?.actor.id||''}`}/> : <FrameworkLibrary />}
   </DesignShell>
 }
