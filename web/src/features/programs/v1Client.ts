@@ -1,11 +1,11 @@
 export type V1Context = { tenant: { id: string; name: string }; legal_entity: { id: string; name: string }; actor: { id: string; name: string }; demo_mode?: boolean; mode: string }
 export type Answer = { text?: string; values?: string[]; artifact_ids?: string[] }
-export type Field = { id: string; label: string; type: string; required: boolean; options?: string[]; attestation?: string; condition?: unknown }
-export type RequestRecord = { id: string; title: string; purpose: string; subject_type: string; subject_id: string; status: string; version: number; fields: Field[]; recipient?: { principal_id?: string; display_name?: string }; form_template_id?: string; deadline: string; updated_at: string }
+export type Field = { id: string; label: string; type: string; required: boolean; options?: string[]; attestation?: string; condition?: unknown; section_id?: string }
+export type RequestRecord = { id: string; title: string; purpose: string; subject_type: string; subject_id: string; status: string; version: number; fields: Field[]; recipient?: { principal_id?: string; display_name?: string }; form_template_id?: string; form_template_version?: number; known_facts?: Record<string, string>; sections?: { id: string; title: string }[]; created_by?: string; deadline: string; updated_at: string }
 export type Program = { id: string; code: string; name: string; status: string; owning_function: string; jurisdiction: string; version: number; updated_at: string; legal_entity_id: string }
 export type Aggregate = { program: Program; requirements: { id: string; code: string; title: string }[]; current_state?: { overall: string; reasons?: { summary: string }[] }; evidence_contracts?: { id: string; name?: string; title?: string }[] }
 export type Template = { id: string; name: string; version: number; status: string; is_current: boolean; fields: Field[] }
-export type Matter = { id: string; reference: string; title: string; summary: string; status: string; priority: number; version: number; updated_at: string; due_at?: string; owner_principal_id?: string; scope?: unknown }
+export type Matter = { id: string; reference: string; title: string; summary: string; status: string; priority: number; version: number; updated_at: string; due_at?: string; owner_principal_id?: string; scope?: unknown; source_type?: string; source_id?: string }
 export type MatterAggregate = { matter: Matter; links: { program_id?: string; retired_at?: string }[] }
 export type Artifact = { id: string; file_name: string; status: string; sha256: string; size_bytes: number }
 export type DocumentRecord = { file_name: string; submission_id: string; field_id: string; artifact_id: string; response_revision_id: string; form_template_id: string; request_id?: string; scan_status?: string }
@@ -30,3 +30,7 @@ export function programRequests(items: RequestRecord[], programId: string) { ret
 export function isSupportingDocumentRequest(record: RequestRecord) { return !record.form_template_id && record.purpose === 'Supporting documentation for the selected Program' }
 export function latestRequests(items: RequestRecord[]) { return [...items].sort((a,b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0) || a.id.localeCompare(b.id)) }
 export function programMatters(items: MatterAggregate[], programId: string) { return items.filter(r => r.links?.some(l => l.program_id === programId && !l.retired_at)) }
+
+export type AssessmentActivity = {id: string; request_id: string; title: string; event: string; actor: string; at: string}
+export type RequirementReview = {id: string; title: string; area: string; outcome: 'REVIEWED' | 'FOLLOW_UP_REQUIRED' | 'UNASSESSED'}
+export type AssessmentWorkspace = {requirement_reviews?: RequirementReview[]; items: RequestRecord[]; limited: boolean; assessment_count: number; responses_to_review: number; documents_to_review: number; activities: AssessmentActivity[]; activities_limited: boolean}

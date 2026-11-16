@@ -7,7 +7,7 @@ import { ProgramActivation } from './ProgramActivation'
 import { ProgramFrameworkSummary } from './ProgramFrameworkSummary'
 import { useEffect, useRef, useState } from 'react'
 import { isSupportingDocumentRequest, programRequests, scoped, v1 } from './v1Client'
-import type { RequestRecord, V1Context } from './v1Client'
+import type { AssessmentWorkspace, RequestRecord, RequirementReview, V1Context } from './v1Client'
 import { useWorkspaceTabs } from '../../shared/useWorkspaceTabs'
 import { Icon } from '../../shared/Icons'
 import { useProgramRecord } from './programRecord'
@@ -23,20 +23,20 @@ const sections = ['Overview','Issues','Assessment','Documents','Activity'] as co
 type Section = typeof sections[number]
 function RecentAssessments({context,programId}:{context:V1Context;programId:string}) {
   const [state,setState]=useState<{status:'loading'|'ready'|'unavailable';items:RequestRecord[]}>({status:'loading',items:[]})
-  useEffect(()=>{let active=true;setState({status:'loading',items:[]});void v1<{items:RequestRecord[]}>(scoped('/api/v1/evidence/requests?limit=100',context)).then(result=>{if(active)setState({status:'ready',items:programRequests(result.items,programId).filter(r=>!isSupportingDocumentRequest(r)).sort((a,b)=>b.updated_at.localeCompare(a.updated_at)).slice(0,5)})}).catch(()=>{if(active)setState({status:'unavailable',items:[]})});return()=>{active=false}},[context,programId])
+  useEffect(()=>{let active=true;setState({status:'loading',items:[]});void v1<AssessmentWorkspace>(scoped(`/api/v1/programs/${programId}/assessment-workspace`,context)).then(result=>{if(active)setState({status:'ready',items:programRequests(result.items,programId).filter(r=>!isSupportingDocumentRequest(r)).sort((a,b)=>b.updated_at.localeCompare(a.updated_at)).slice(0,5)})}).catch(()=>{if(active)setState({status:'unavailable',items:[]})});return()=>{active=false}},[context,programId])
   return <tbody>{state.status==='loading'?<tr><td colSpan={4}>Loading assessments…</td></tr>:state.status==='unavailable'?<tr><td colSpan={4}>Assessments unavailable.</td></tr>:state.items.length?state.items.map(item=><tr key={item.id}><td>{item.title}</td><td>{item.recipient?.display_name?.trim()||(item.recipient?.principal_id===context.actor.id?context.actor.name:'Not available')}</td><td>{new Date(item.updated_at).toLocaleDateString()}</td><td>{item.status.replaceAll('_',' ')}</td></tr>):<tr><td colSpan={4}>No assessments available.</td></tr>}</tbody>
 }
 function useVisibleAssessmentCount(context:V1Context|null,programId:string|null,enabled:boolean) {
-  const [state,setState]=useState<{key:string;count:number|null;limited:boolean}>({key:'',count:null,limited:false})
+  const [state,setState]=useState<{key:string;count:number|null;responses:number|null;documents:number|null;limited:boolean; requirementReviews?:RequirementReview[]}>({key:'',count:null,responses:null,documents:null,limited:false})
   const key=context&&programId?`${context.actor.id}:${context.tenant.id}:${context.legal_entity.id}:${programId}`:''
   useEffect(()=>{if(!enabled||!context||!programId)return;let active=true
-    void v1<{items:RequestRecord[]}>(scoped('/api/v1/evidence/requests?limit=100',context)).then(result=>{
+    void v1<AssessmentWorkspace>(scoped(`/api/v1/programs/${programId}/assessment-workspace`,context)).then(result=>{
       if(!Array.isArray(result.items))throw Error('Invalid request list')
-      if(active)setState({key,count:programRequests(result.items,programId).filter(r=>!isSupportingDocumentRequest(r)).length,limited:result.items.length>=100})
-    }).catch(()=>{if(active)setState({key,count:null,limited:false})})
+      if(active)setState({key,count:result.assessment_count,responses:result.responses_to_review,documents:result.documents_to_review,limited:false,requirementReviews:result.requirement_reviews})
+    }).catch(()=>{if(active)setState({key,count:null,responses:null,documents:null,limited:false})})
     return()=>{active=false}
   },[context,programId,enabled,key])
-  return state.key===key?state:{key,count:null,limited:false}
+  return state.key===key?state:{key,count:null,responses:null,documents:null,limited:false}
 }
 const sectionId = (section: Section) => section.toLowerCase()
 const metrics = [
@@ -70,6 +70,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
   const tabs=useWorkspaceTabs(sections,section,setSection)
   const requirements=useApprovedRequirements(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && showRequirements && !!record)
   const overview=useProgramOverview(record?.id ?? null,record?.source_revision ?? null,section==='Overview' && !!record)
+  const [areaFilter,setAreaFilter]=useState<'All'|'Follow-up'|'Unassessed'>('All')
   const coverage=overview.status==='ready' ? overview.overview.assessment_coverage : null
   const issues=useProgramIssues(record?.id ?? null,record?.source_revision ?? null,
     !!record && (section==='Overview'||section==='Issues'))
@@ -202,8 +203,8 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
           {metrics.map((item,index)=><article className="metric-card" key={item.label}>
             <div className="metric-top"><span>{item.label}</span>
               <Icon name={item.icon}/></div>
-            <div className="metric-value empty-value">{index===0&&assessmentCount.count!==null ? `${assessmentCount.limited?'At least ':''}${assessmentCount.count}` : index===2&&issues.result.status==='ready' ? `${issues.result.page.next_cursor?'At least ':''}${issues.result.page.items.length}` : '—'} <span>{item.suffix}</span></div>
-            <div className="metric-info">{index===0&&assessmentCount.count!==null?'Visible requests returned by v1':index===2&&issues.result.status==='ready'?'Visible open issues linked to this Program':'Summary unavailable'}</div>
+            <div className="metric-value empty-value">{index===0&&assessmentCount.count!==null ? `${assessmentCount.limited?'At least ':''}${assessmentCount.count}` : index===1&&assessmentCount.responses!==null ? assessmentCount.responses : index===3&&assessmentCount.documents!==null ? assessmentCount.documents : index===2&&issues.result.status==='ready' ? `${issues.result.page.next_cursor?'At least ':''}${issues.result.page.items.length}` : '—'} <span>{item.suffix}</span></div>
+            <div className="metric-info">{index===0&&assessmentCount.count!==null?'Authorized Program assessments':index===1&&assessmentCount.responses!==null?'Submitted responses without an independent review':index===3&&assessmentCount.documents!==null?'Submitted files without a reviewed evidence decision':index===2&&issues.result.status==='ready'?'Visible open issues linked to this Program':'Summary unavailable'}</div>
             <button className="text-link" type="button" onClick={()=>setSection(index===2?'Issues':index===3?'Documents':'Assessment')}>View <Icon name="next"/></button>
           </article>)}
         </div>
@@ -214,7 +215,10 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
                 <p>Applicable requirements and assessment status</p></div>
                 <button type="button" className="text-link" onClick={()=>setShowRequirements(true)}>
                   All requirements <Icon name="next"/></button></div>
-              {coverage ? <div className="program-empty">
+              {assessmentCount.requirementReviews?.length ? <div className="program-empty">
+                <strong>{assessmentCount.requirementReviews.filter(item=>item.outcome!=='UNASSESSED').length} of {assessmentCount.requirementReviews.length} approved requirements have reviewed evidence</strong>
+                <p>{assessmentCount.requirementReviews.filter(item=>item.outcome==='FOLLOW_UP_REQUIRED').length} require follow-up. These are evidence review outcomes.</p>
+              </div> : coverage ? <div className="program-empty">
                   <strong>{coverage.assessed} of {coverage.eligible} assessed requirements</strong>
                   <progress value={coverage.assessed} max={Math.max(1,coverage.eligible)}
                     aria-label="Assessed requirement coverage"/>
@@ -224,12 +228,21 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
                   A current approved requirement assessment is required.</div>}
               <div className="area-head"><strong>By control area</strong>
                 <div className="mini-tabs" role="group" aria-label="Control area filter">
-                  <button type="button" className="selected" disabled>All</button>
-                  <button type="button" disabled>Gaps</button>
-                  <button type="button" disabled>Unassessed</button>
+                  {(['All','Follow-up','Unassessed'] as const).map(filter=><button key={filter} type="button" className={filter===areaFilter?'selected':undefined} aria-pressed={filter===areaFilter} disabled={!assessmentCount.requirementReviews?.length} onClick={()=>setAreaFilter(filter)}>{filter}</button>)}
                 </div></div>
               <div className="area-table-head"><span>Control area</span><span>Distribution</span><span>Assessed</span></div>
-              <div className="area-rows"><div className="program-context-empty">Control-area assessment is unavailable. Open the requirements below to view approved references.</div></div>
+              <div className="area-rows">{(()=>{
+                const records=assessmentCount.requirementReviews||[]
+                const areas=[...new Set(records.map(item=>item.area))].map(area=>{
+                  const items=records.filter(item=>item.area===area)
+                  return {area,total:items.length,reviewed:items.filter(item=>item.outcome!=='UNASSESSED').length,followUp:items.filter(item=>item.outcome==='FOLLOW_UP_REQUIRED').length}
+                }).filter(area=>areaFilter==='All'||(areaFilter==='Follow-up'?area.followUp>0:area.reviewed<area.total))
+                return areas.length ? areas.map(area=><div className="area-row" key={area.area}>
+                  <strong>{area.area}{area.followUp>0&&<small> · {area.followUp} follow-up</small>}</strong>
+                  <progress value={area.reviewed} max={area.total} aria-label={`${area.area} evidence reviewed`}/>
+                  <span>{area.reviewed} / {area.total}</span>
+                </div>) : <div className="program-context-empty">{records.length?'No control areas match this filter.':'Control-area evidence review is unavailable for this account or Program.'}</div>
+              })()}</div>
               <footer className="surface-footer"><span>Assessment status requires reviewed responses and evidence.</span>
                 <button type="button" className="text-link" onClick={()=>setShowRequirements(true)}>
                   Open requirements <Icon name="next"/></button></footer>
@@ -301,7 +314,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
             {section==='Activity' && <button className="button" disabled={!connected} title={connected?'Exports the filtered v1 request snapshots shown below':'Activity export service is not connected'} onClick={()=>activityExportRef.current?.()}>Export filtered history</button>}
           </div>
           {section==='Issues' && !connected && <div className="program-register-tools"><label className="program-field">Search issues<input type="search" placeholder="Reference, title or owner" disabled title="Issue search is not supported by the current service"/></label><label className="program-field">Status<select disabled title="Current service returns visible open issues"><option>Visible open issues</option></select></label></div>}
-          {connected && programId ? <ConnectedProgramWorkflows programId={programId} section={section} action={workflowAction} activityExportRef={activityExportRef} onActionDone={()=>setWorkflowAction(null)} onCreated={retry}/> : section==='Assessment' ? <ProgramAssessmentPanel/> : section==='Documents' ? <section className="surface program-document-register"><div className="surface-heading"><div><h2>Document register</h2><p>Submission, review and compliance conclusions are separate.</p></div></div><div className="program-register-tools program-register-inset"><label className="program-field">Search documents<input type="search" placeholder="Name or linked assessment" disabled/></label><label className="program-field">Review status<select disabled><option>All statuses</option><option>Submitted</option><option>Reviewed</option></select></label></div><p className="program-context-empty" role="status">Document uploads, downloads and reviews are not connected.</p>{record && <details className="program-contract-reference"><summary>Evidence collection contracts</summary><ProgramInventoryPanel kind="evidence-contracts" programId={record.id} revision={record.source_revision} onRefreshProgram={retry}/></details>}</section>
+          {connected && programId ? <ConnectedProgramWorkflows programId={programId} section={section} action={workflowAction} activityExportRef={activityExportRef} onActionDone={()=>setWorkflowAction(null)} onCreated={retry} onOpenAssessment={()=>setSection('Assessment')}/> : section==='Assessment' ? <ProgramAssessmentPanel/> : section==='Documents' ? <section className="surface program-document-register"><div className="surface-heading"><div><h2>Document register</h2><p>Submission, review and compliance conclusions are separate.</p></div></div><div className="program-register-tools program-register-inset"><label className="program-field">Search documents<input type="search" placeholder="Name or linked assessment" disabled/></label><label className="program-field">Review status<select disabled><option>All statuses</option><option>Submitted</option><option>Reviewed</option></select></label></div><p className="program-context-empty" role="status">Document uploads, downloads and reviews are not connected.</p>{record && <details className="program-contract-reference"><summary>Evidence collection contracts</summary><ProgramInventoryPanel kind="evidence-contracts" programId={record.id} revision={record.source_revision} onRefreshProgram={retry}/></details>}</section>
           : section==='Activity' ? <section className="surface program-activity-register"><div className="surface-heading"><div><h2>Program event history</h2><p>Newest first · UTC timestamps · actor shown when available</p></div></div><div className="program-register-tools program-register-inset"><label className="program-field">Search history<input type="search" placeholder="Actor, record reference or event" disabled/></label><label className="program-field">Event type<select disabled><option>All events</option></select></label></div><p className="program-context-empty" role="status">Program change history is not connected.</p></section>
           :section==='Issues' && record ?
             <section className="surface program-section-message" aria-label="Visible Program issues">
