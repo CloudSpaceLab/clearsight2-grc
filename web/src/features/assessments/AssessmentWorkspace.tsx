@@ -21,12 +21,15 @@ function AssessmentBrowser({openAuthoring,onDirty}:{openAuthoring:()=>void;onDir
   const [mode,setMode]=useState<Mode>('questions')
   const {context}=useV1Session()
   const [forms,setForms]=useState<LibraryForm[]>([])
-  const [formId,setFormId]=useState('')
-  const [sectionId,setSectionId]=useState('')
+  const linkedParams=new URLSearchParams(location.search)
+  const linkedForm=linkedParams.get('form')||''
+  const linkedVersion=Number(linkedParams.get('version'))
+  const [formId,setFormId]=useState(linkedForm&&Number.isSafeInteger(linkedVersion)&&linkedVersion>0?`${linkedForm}:${linkedVersion}`:'')
+  const [sectionId,setSectionId]=useState(linkedParams.get('group')||'')
   const [reload,setReload]=useState(0)
   const [loadState,setLoadState]=useState<'loading'|'ready'|'error'>('loading')
   const [assignment,setAssignment]=useState<{scope:string;request:AssignedRequest}|null>(null)
-  useEffect(()=>{if(!context){setForms([]);setFormId('');setLoadState('ready');return}let active=true;setLoadState('loading');void v1<{items:LibraryForm[]}>('/api/v1/form-templates?limit=100').then(result=>{if(!Array.isArray(result.items))throw Error('Invalid form list');if(active){setForms(result.items.filter(item=>item&&typeof item.id==='string'&&typeof item.name==='string'&&typeof item.version==='number'&&Array.isArray(item.fields)));setLoadState('ready')}}).catch(()=>{if(active){setForms([]);setLoadState('error')}});return()=>{active=false}},[context,reload])
+  useEffect(()=>{if(!context){setForms([]);setFormId('');setLoadState('ready');return}let active=true;setLoadState('loading');const exact=linkedForm&&Number.isSafeInteger(linkedVersion)&&linkedVersion>0?v1<LibraryForm>(`/api/v1/forms/templates/${encodeURIComponent(linkedForm)}/revisions/${linkedVersion}`):Promise.resolve(null);void Promise.all([v1<{items:LibraryForm[]}>('/api/v1/form-templates?limit=100'),exact]).then(([result,pinned])=>{if(!Array.isArray(result.items))throw Error('Invalid form list');if(pinned&&(pinned.id!==linkedForm||pinned.version!==linkedVersion||(linkedParams.get('group')&&!pinned.sections?.some(s=>s.id===linkedParams.get('group')))))throw Error('The linked questionnaire group is unavailable');if(active){const items=result.items.filter(item=>item&&typeof item.id==='string'&&typeof item.name==='string'&&typeof item.version==='number'&&Array.isArray(item.fields));setForms(pinned?[pinned,...items.filter(f=>f.id!==pinned.id||f.version!==pinned.version)]:items);if(pinned){setFormId(`${pinned.id}:${pinned.version}`);setSectionId(linkedParams.get('group')||'')}setLoadState('ready')}}).catch(()=>{if(active){setForms([]);setLoadState('error')}});return()=>{active=false}},[context,reload,linkedForm,linkedVersion])
   const form=forms.find(item=>`${item.id}:${item.version}`===formId)
   const fields=form?.fields.filter(field=>!sectionId||field.section_id===sectionId)||[]
   const sections=form?.sections||[]
@@ -97,7 +100,7 @@ function AssessmentBrowser({openAuthoring,onDirty}:{openAuthoring:()=>void;onDir
       <div className="questions-column">
         <div className="section-title-row"><div>
           <div className="panel-eyebrow">{sectionId?`Section ${String(sectionIndex+1).padStart(2,'0')} of ${String(sections.length).padStart(2,'0')}`:'Questions'}</div><h2>{form?(sectionId?form.sections?.find(section=>section.id===sectionId)?.title||'Questions':'All questions'):'Questions unavailable'}</h2>
-          <p>{form?(sections[sectionIndex]?.help||'Form definition · Responses are collected in a Program assessment.'):'Questionnaire content will appear after form selection.'}</p></div>
+          <p>{form?(sections[sectionIndex]?.help?.replaceAll('\u00e2\u20ac\u201d',' - ')||'Form definition · Responses are collected in a Program assessment.'):'Questionnaire content will appear after form selection.'}</p></div>
           <span className="section-progress">{form?`${fields.length} questions`:'—'}</span></div>
         <div className="questions-stack">{form ? fields.length ? fields.map(field=><article className="question-card" key={field.id}><div className="question-meta"><span className="question-code">Question {form.fields.indexOf(field)+1}</span><span className="question-state">{field.required?'Required':'Optional'}</span></div><h3 className="question-text">{field.label}</h3>{field.description&&<p className="question-help">{field.description}</p>}<div className="assessment-answer-definition"><span>Response type: {field.type.replaceAll('_',' ')}</span>{Array.isArray(field.options)&&field.options.length>0&&<div className="assessment-definition-options" aria-label="Available answer choices">{field.options.map((option,index)=><span key={`${index}:${option}`}>{option}</span>)}</div>}</div></article>) : <div className="assessment-empty">No questions in this section.</div> : <div className="assessment-empty"><strong>No authorized questions</strong>No responses, answer options or mappings are available.</div>}</div>
         <footer className="question-footer">

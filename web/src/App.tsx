@@ -34,6 +34,7 @@ function AppContent() {
     setFormDirty(false)
     const location = new URL(window.location.href)
     location.searchParams.set('screen', screen)
+    for(const key of ['form','version','group'])location.searchParams.delete(key)
     if (screen === 'programs' && programId) location.searchParams.set('program', programId)
     else location.searchParams.delete('program')
     window.history.pushState(null, '', location)
