@@ -3,6 +3,7 @@ import { ConnectedProgramWorkflows } from './ConnectedProgramWorkflows'
 import { CreateProgramDialog } from './CreateProgramDialog'
 import { CreateRequirement } from './CreateRequirement'
 import { RequirementReviewPanel } from './RequirementReviewPanel'
+import { ProgramActivation } from './ProgramActivation'
 import { useEffect, useRef, useState } from 'react'
 import { isSupportingDocumentRequest, programRequests, scoped, v1 } from './v1Client'
 import type { RequestRecord, V1Context } from './v1Client'
@@ -183,6 +184,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
       Program data could not be retrieved. <button type="button" className="text-link" onClick={retry}>Retry</button>
     </div>}
     {record && <p className="program-context-empty">Updated {new Date(record.updated_at).toLocaleString()} · Compliance and assessment data require separate authorized projections.</p>}
+    {connected&&context&&record&&<ProgramActivation context={context} programId={record.id} revision={record.source_revision} onChanged={retry} onOpenRequirements={()=>{setSection('Overview');setShowRequirements(true);requestAnimationFrame(()=>document.getElementById('program-requirements')?.scrollIntoView({block:'start',behavior:'smooth'}))}}/>}
     <div className="workspace-tabs" role="tablist" aria-label="Program sections" onKeyDown={tabs.onKeyDown}>
       {sections.map((name,i)=><button key={name} type="button" role="tab"
         id={'program-tab-'+sectionId(name)}
