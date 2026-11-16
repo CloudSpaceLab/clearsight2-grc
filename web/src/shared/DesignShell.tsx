@@ -28,7 +28,7 @@ export function DesignShell({screen,onNavigate,children,sessionName}:{sessionNam
         <div><strong>ClearSight</strong><small>Governance · Risk · Compliance</small></div></div>
       <nav className="nav" aria-label="Primary">
         {nav.map(item=>item.screen
-          ? <button key={item.label} type="button" className={'nav-item'+(screen===item.screen?' active':'')}
+          ? <button key={item.label} type="button" aria-label={item.label} className={'nav-item'+(screen===item.screen?' active':'')}
               aria-current={screen===item.screen?'page':undefined} onClick={()=>onNavigate(item.screen as Screen)}>
               <Icon name={item.icon}/><span>{item.label}</span></button>
           : <span key={item.label} className="nav-item" aria-disabled="true"

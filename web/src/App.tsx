@@ -49,6 +49,6 @@ function AppContent() {
             onBackPrograms={() => navigate('programs')}
             openFrameworks={() => navigate('frameworks')} />
       : route.screen === 'assessment' ? <AssessmentWorkspace onAuthoringDirty={setFormDirty} />
-      : v1Enabled ? <V1FrameworkLibrary key={`${context?.tenant.id||''}:${context?.legal_entity.id||''}:${context?.actor.id||''}`}/> : <FrameworkLibrary />}
+      : v1Enabled ? <V1FrameworkLibrary onDirty={setFormDirty} key={`${context?.tenant.id||''}:${context?.legal_entity.id||''}:${context?.actor.id||''}`}/> : <FrameworkLibrary />}
   </DesignShell>
 }

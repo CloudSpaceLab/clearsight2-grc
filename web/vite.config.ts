@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const target = loadEnv(mode, '.', 'CLEARSIGHT_').CLEARSIGHT_API_TARGET || 'http://127.0.0.1:8080'
-  return { plugins: [react()], server: { proxy: { '/api': target, '/healthz': target } } }
+  return { cacheDir: '../.local/vite-cache', plugins: [react()], server: { proxy: { '/api': target, '/healthz': target } } }
 })

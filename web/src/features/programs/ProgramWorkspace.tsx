@@ -4,6 +4,7 @@ import { CreateProgramDialog } from './CreateProgramDialog'
 import { CreateRequirement } from './CreateRequirement'
 import { RequirementReviewPanel } from './RequirementReviewPanel'
 import { ProgramActivation } from './ProgramActivation'
+import { ProgramFrameworkSummary } from './ProgramFrameworkSummary'
 import { useEffect, useRef, useState } from 'react'
 import { isSupportingDocumentRequest, programRequests, scoped, v1 } from './v1Client'
 import type { RequestRecord, V1Context } from './v1Client'
@@ -271,7 +272,7 @@ export function ProgramWorkspace({openFrameworks,programId,onSelectProgram,onBac
                 {record ? <div>
                   <div>Function <strong>{record.owning_function}</strong></div>
                   <div>Jurisdiction <strong>{record.jurisdiction || 'Not specified'}</strong></div>
-                  <div>Frameworks and forms <strong>Not connected</strong></div>
+                  {context&&<ProgramFrameworkSummary context={context} programId={record.id} revision={record.source_revision}/>}
                 </div> : 'Select a Program.'}
                 <div><button className="text-link" type="button" onClick={openFrameworks}>
                   Browse framework references <Icon name="next"/></button></div></div>
