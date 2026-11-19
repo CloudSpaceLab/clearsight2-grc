@@ -24,11 +24,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Read paired V1 Program API contract
+        uses: actions/checkout@v4
+        with:
+          repository: CloudSpaceLab/clearsight-grc
+          ref: a6946f2ac2187671605cbd8912a29fa997d5cba2
+          path: .local/v1-program-contract
+          sparse-checkout: api/runtime.openapi.json
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
       - name: Install and build
         working-directory: web
+        env:
+          CLEARSIGHT_V1_RUNTIME_CONTRACT: ${{ github.workspace }}/.local/v1-program-contract/api/runtime.openapi.json
         run: |
           npm ci --no-audit --no-fund
           npm run typecheck
