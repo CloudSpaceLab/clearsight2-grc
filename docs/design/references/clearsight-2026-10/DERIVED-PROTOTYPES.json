@@ -1,0 +1,506 @@
+{
+  "schema": 1,
+  "classification": "Separately authored working prototypes; not part of the approved original design archive.",
+  "files": [
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/FIELD-ACTION-MAP.md",
+      "bytes": 5434,
+      "sha256": "52a6faec1730c70419945309814ed96f023727ed01e1191bb4795220fd196837"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/README.md",
+      "bytes": 3277,
+      "sha256": "ba4a4edf684662dcbaadafd05d905dff6da37b8079cd00cf18c5a013fcb6e3c3"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/builder-model.js",
+      "bytes": 4082,
+      "sha256": "2bb16c5496071e8c6cf7b9cc4a110227ed68fe7afdf52e34777628a4c66a4ce0"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/builder-model.test.cjs",
+      "bytes": 1455,
+      "sha256": "a93f92e856a8acf027d58d74fcfe3eb16c1c87f4a2319df7ea4489f4e8731bfc"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/builder.css",
+      "bytes": 11068,
+      "sha256": "1718d087e80947ddf377e2d714286808cd2a6f92fb0ea8e40ed983100b44d5d2"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/builder.js",
+      "bytes": 20915,
+      "sha256": "cef07d8a59fb2ce7f0fb696aaad4675264fea24beb746ea5036359e4e48002a1"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/create-form-builder.png",
+      "bytes": 205725,
+      "sha256": "37d82167960f8de744e536b032d0e1bb8f4be9f61ba1398658499243f6bec9be"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/create-form-launcher.png",
+      "bytes": 96790,
+      "sha256": "dafbc323bb8fc3e6795c546dbebb26d9e3bab2b56362fc7078770b8eb4997b2b"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/create-form-outline-fixed.png",
+      "bytes": 224643,
+      "sha256": "007681b3b3cb93bed03763d5beb7fd131887e0d007a7d67a2084c15b745fd01b"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/form-outline.png",
+      "bytes": 225525,
+      "sha256": "7017ef507d3dd8413805c33d1afc7b8f41c4ffc12efa92bd66ad23fc75ddff52"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/index.html",
+      "bytes": 12371,
+      "sha256": "9cd3878549bbaf27fa19e236b77dfb6f8fa81678dfab2ecdced60f67df65c14d"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/question-settings.png",
+      "bytes": 194366,
+      "sha256": "39f7fefb8b4152c58bebccc2be5f73fb8371f6b84f448a6ad63c7e459173185e"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-revision/reference.css",
+      "bytes": 37880,
+      "sha256": "b13d7f31de0562431125728afb037d179963ad48e74c4fefb53e273242c840f7"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/TEST-RESULTS.md",
+      "bytes": 3925,
+      "sha256": "810c8649a70ea51685b66f84a5468f29a4f414709b84d38fb214aaed4573c7d5"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/author-tools.js",
+      "bytes": 25318,
+      "sha256": "7d59b4f188fc99969481d870eafa01ca22af8d7a0b72d9c2d0764dfa3cb67ff9"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/create-form-simple.png",
+      "bytes": 376932,
+      "sha256": "d4ea5d784fc3645f5823f7778919e1b3df087c34ad0ca2f5e33e475ae7c8156d"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/field-preview.png",
+      "bytes": 311020,
+      "sha256": "097ea005bb6c5b65017b3469574d15aa68fad6a57b26edf3549a78407e1bb369"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/grid-authoring.png",
+      "bytes": 390554,
+      "sha256": "5378ec2735270acaa23ffa86170c366e0a8f056d5c91fefc5632574faa3184a4"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/index.html",
+      "bytes": 9378,
+      "sha256": "864fe09a912fd07c9907a48cce053a27a933ff0dada4c33522835b3e59919cc1"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/simple.css",
+      "bytes": 14396,
+      "sha256": "bb3cd08fe0afd3ad992d759d0688a154d0f3f885b083924420c5154895c883d3"
+    },
+    {
+      "path": "clearsight-designs-01-05/create-form-simple/simple.js",
+      "bytes": 15715,
+      "sha256": "124d6045871dc366f8c746f304cd442b5ddaac6191515b508e25718a07f38011"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/README.md",
+      "bytes": 3969,
+      "sha256": "77f07bcdc667914cb2a7a6e3b9d1d3b6245308008ec697e960c2956f35c9de3e"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/assigned-assessments.png",
+      "bytes": 144443,
+      "sha256": "a032f51960cc45844548d238932aecaae5a2815143c0b82e6456da7eb2310df4"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/form-library.png",
+      "bytes": 103183,
+      "sha256": "45dc4385cdd7e709e5dda761ca7bc531d88fa8a36781ce0e7d4e0694d67b2499"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/forms-model.js",
+      "bytes": 3827,
+      "sha256": "9f697d6950bc960931130b94a2b939bb23e1367d8be84ae469b220e02eb2e8c8"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/forms-model.test.cjs",
+      "bytes": 1798,
+      "sha256": "5c0ef905f2ca6c3aecd5cbb1d6724e9fd140de512a358de001d2e71b2fbd2ec8"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/forms-workspace.png",
+      "bytes": 142410,
+      "sha256": "093e431b36d130f2a0fbd75d3b1848d7f574bf3599e5f3eca7e622ccfee4a772"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/forms.css",
+      "bytes": 8952,
+      "sha256": "b1dc908888d5ee08baa5d79661b21be1ac1b75d5913acc2eea7f80a8d2b9ae0e"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/forms.js",
+      "bytes": 11609,
+      "sha256": "91efc54acb15cab4f7e864ef31e9d32d48956d7a2713d10c0eeddf7df2aeda45"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/index.html",
+      "bytes": 15039,
+      "sha256": "461bb89d67ae7270715a43843a42fb2eed376e81c44a3cc000b4d5c40accfa05"
+    },
+    {
+      "path": "clearsight-designs-01-05/forms-workspace-revision/reference.css",
+      "bytes": 37880,
+      "sha256": "b13d7f31de0562431125728afb037d179963ad48e74c4fefb53e273242c840f7"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/README.md",
+      "bytes": 1235,
+      "sha256": "4058d064190c6c3d7965d06c3c697ab930263fc1ff239c5fd399b4984b02df50"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/builder.css",
+      "bytes": 7954,
+      "sha256": "b487231936607c158bb0f1d9c1381281043e1c94236fe13f251a0e6f57fb9377"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/distribution.css",
+      "bytes": 3586,
+      "sha256": "841861a9dac7fa17c3bbfc6b1214b0d05e212d8248526c864e98bacf446268af"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/distribution.js",
+      "bytes": 11401,
+      "sha256": "82753695253168137ac1cf41b550f7b84f19d2fd8aa6f26d41b703d120caa48a"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/index.html",
+      "bytes": 11117,
+      "sha256": "318fbd4b97e16d3e18f36f76c4a35a0118c68591242c336e2212827303728e8c"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/model.js",
+      "bytes": 3873,
+      "sha256": "0358f9f3986f5a35e7d4ccdf3636b22d4b66ac55e19d6b8a25c91f35bc2a89f1"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/model.test.cjs",
+      "bytes": 2308,
+      "sha256": "f9871088f376a8cf5d30a2155b68bb066b58d325339106c76aa858ab46e8aea0"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/reference.css",
+      "bytes": 37880,
+      "sha256": "b13d7f31de0562431125728afb037d179963ad48e74c4fefb53e273242c840f7"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/response-review-cycle.png",
+      "bytes": 90607,
+      "sha256": "bda6c3c448e0805aec13866733add5e4ab70ec46e3b3946f5d433667d349a9ca"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/send-form.png",
+      "bytes": 95305,
+      "sha256": "32bbca484aecb6105f9ba655545f6eb04b37da79c884e0e3b3b5ab9077141412"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/sent-forms.png",
+      "bytes": 99664,
+      "sha256": "9dcedca9e5c8ede767f7c283bd9e84fadd36fa8435509dd3b1d325ebfcd4e3bd"
+    },
+    {
+      "path": "clearsight-designs-01-05/send-form-revision/submitted-response.png",
+      "bytes": 38956,
+      "sha256": "b154b22f7149a569c87d1aa733f6380039cfa3a538efa800f36f85f7cc1bd586"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/ACCEPTANCE.md",
+      "bytes": 3575,
+      "sha256": "1f394107ef00849aea58e0429a483ceced76fad9717f7aacf5cea4ba4dd06546"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/README.md",
+      "bytes": 6696,
+      "sha256": "2ae9fc6a796cbfb56d56aa66a58fbf3e2e0638c33718e94e3d0b33a0b3419a04"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/build-preview.mjs",
+      "bytes": 1305,
+      "sha256": "509ecd6c867ae3a4894ef8df3c9e748db1eb2ded94f64102fa52a06a719fbead"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-assignments-light.jpg",
+      "bytes": 186054,
+      "sha256": "9c07a80a696df6b07ea33d456dd6d4f5a1782c67dff99a7ab1833e2814c52623"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-customization-light.jpg",
+      "bytes": 128622,
+      "sha256": "1961d7d5dd8a66869740cdef72403fa56c50aceaa71ce3ff7303b4fe18295706"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-demo-proposal-light.jpg",
+      "bytes": 204103,
+      "sha256": "bcbed10f8f1b60a2002be70156678ea8f5a0f28cf4581bdbcc14490bd1f1127f"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-linked-questions-light.jpg",
+      "bytes": 107364,
+      "sha256": "d19641b7767a7fe08604cc9cccc6a5adbe706d1ddc4a6cc842d73664175e989b"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-monitoring-light.jpg",
+      "bytes": 265337,
+      "sha256": "fa7a05ac6c1a1ed37de7824478ea00a4d0ff72721313ca2f55ebf15f4056f310"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-proposal-review-light.jpg",
+      "bytes": 171718,
+      "sha256": "224dcc43c779a3707d2d3decda35a4bc9bcea5af8a206a885fa99ca1b16d46f6"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/desktop-smart-question-light.jpg",
+      "bytes": 218001,
+      "sha256": "722db536a92f861438aae08b610223dffdc65b104ede6c3cb765379d2f9da83a"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/library-adopt-framework-entry.jpg",
+      "bytes": 130045,
+      "sha256": "fa8632817dd39e4310ea338948f2eead1973483460bf799957a861a67b38c9c3"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/reference-adoption-desktop.jpg",
+      "bytes": 124724,
+      "sha256": "bd0b47d298f704882d4970f974e98538aa4718f4392b83f7701cb462f7df4b59"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/evidence/template-aligned-questionnaire.jpg",
+      "bytes": 174442,
+      "sha256": "f86d831b14fc3696fdf2a1a4866dbbdcb79aa829470af671fe0e0afc1ae8edc0"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/index.html",
+      "bytes": 129433,
+      "sha256": "be085ac370b4e3de345853e1725f959c85d75a64fe0f5f0acdcecb39b160b92a"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/index.source.html",
+      "bytes": 6047,
+      "sha256": "1e7f30138d7ccce52cb26385379a17b54fbfed9bb9015f7ad0a5e568f433746b"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/iso-model.js",
+      "bytes": 4266,
+      "sha256": "86a827cbc552360926d6c50c02369abff7937df60f6550b540846624b7015a08"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/iso-wizard.js",
+      "bytes": 12340,
+      "sha256": "ee6554c90342a2c672b18b85859d2d9c0fc90cf0e21482792fc74ded0c17b483"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/library.html",
+      "bytes": 33235,
+      "sha256": "115ed3d49eda8d7dd1ea438ed2aceb9e925b6f2736af81853d2ac7d2d8807e94"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/model.js",
+      "bytes": 9203,
+      "sha256": "32436cb832535f4b0f63c02b06288d121503696818d0008bebd9dc04cda050d2"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/model.test.mjs",
+      "bytes": 4115,
+      "sha256": "7c7f4cff72c6f733352c73ca11850820a402488599e33a4a657979af0a168603"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/reference-shell.js",
+      "bytes": 6358,
+      "sha256": "fa6f85f76b503bf04eb85428e2099d1d6aae193a97751598900e77dfdd720502"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/reference.css",
+      "bytes": 30164,
+      "sha256": "6c76ef9954ece6eb24161e694aa7f581a981567bdbac3f428e199a58c7b9f77d"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/source-manifest.json",
+      "bytes": 200,
+      "sha256": "7710be1972c03949157bb12439b1d7b867beb16a928d2d3850ed5a98adebd537"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/wizard.css",
+      "bytes": 28022,
+      "sha256": "59d0ae8b58d0bf9240bd76a6760c5bc459a6601727f61951601509f0912cfc80"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-adoption-wizard/wizard.js",
+      "bytes": 33546,
+      "sha256": "931832e8a5920fd4ef85146570dbb97ca08092638178ab18217c9a2a10145a2f"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/README.md",
+      "bytes": 1202,
+      "sha256": "8930b433a32c76a37889c5a91d1408ba0d558a3b1656373ab32a7ed05e417685"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/index.html",
+      "bytes": 32690,
+      "sha256": "c5dea955d5cd32916d0cd699f618c0ddeba06db0931d8385b457c6592c0864b4"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/publication.css",
+      "bytes": 5004,
+      "sha256": "5526c9aa809bdc9aedb919d516275348221ed84d4b6eb0efc448be64ea60a156"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/publication.html",
+      "bytes": 27000,
+      "sha256": "b9d09c7eb00e688514eab5fc8a934f9d5711a15a2ec33f11e9e702dde48a2540"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/publication.js",
+      "bytes": 7940,
+      "sha256": "49cd0c66b2b63a4c51dd897a5c30f3491dbba3be6c4e84dd0099d3d69dbbc439"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-publication-prototype/review-full.png",
+      "bytes": 465813,
+      "sha256": "fd1dd24309996336c1aadfb4d74a3ab72ced47934232587cb2886bb1c40cb687"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/README.md",
+      "bytes": 697,
+      "sha256": "4fa0a024f51a94b748307500c6b1a9fded8a728467b91ecaae0dc0a286ca1df4"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/adoption-full.jpg",
+      "bytes": 78284,
+      "sha256": "7da543e329157d34b12d048d69073d45c1f256ffe3d4204bea099e16706afb17"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/adoption-full.png",
+      "bytes": 330125,
+      "sha256": "8c2f48c97f1508769f5df8b36f633c759f6124cc0e8bf0aba6a380120de84957"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/framework-adoption.html",
+      "bytes": 51726,
+      "sha256": "18d2db551a23ef89b509fb52d6c4ca1fc863352ff53a3c31f0a397ef15f4894f"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/framework-library.html",
+      "bytes": 32414,
+      "sha256": "ad11b716af2b5083cc3d565a0ae1487ab81c246a8f5a54d5d7298bcecd7f008f"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/library-full.jpg",
+      "bytes": 91230,
+      "sha256": "cdd5d98171c54a989692666896b1350c7aa5d3263043a229a13e535820a84dfa"
+    },
+    {
+      "path": "clearsight-framework-designs/framework-workflow-prototype/library-full.png",
+      "bytes": 454704,
+      "sha256": "5ebd3907a2750cf960df933f6bc820542161873d4917c24f8d683038227b3b10"
+    },
+    {
+      "path": "clearsight-home-designs/README.md",
+      "bytes": 1632,
+      "sha256": "3640abfdcd1f94aee459350d174f049ea93fa044ac691f2a214d38c00c34ed0b"
+    },
+    {
+      "path": "clearsight-home-designs/home-control-tower-design-notes.md",
+      "bytes": 3477,
+      "sha256": "b65493646eb6a2f8006fee29fb40a73c564970402c0ff744c38f9608c5b1ae80"
+    },
+    {
+      "path": "clearsight-home-designs/home-control-tower.css",
+      "bytes": 5216,
+      "sha256": "dcbe1414e4b8042b794c599da8b0306e5a2af614238fa76cbcc84901950dcc3f"
+    },
+    {
+      "path": "clearsight-home-designs/home-control-tower.js",
+      "bytes": 4795,
+      "sha256": "8c31ef5296aa824668a52e6b555addc5c4227498baf18c3ca3bfd323b0d39fcf"
+    },
+    {
+      "path": "clearsight-home-designs/index.html",
+      "bytes": 16860,
+      "sha256": "99d862db0c6a2ece111eb5d6b14778af499a638a2a911f95840ef1fe1cc05929"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/IMPLEMENTATION-MAP.md",
+      "bytes": 26725,
+      "sha256": "65ca894595e462a7f7aff920b69d41adc38ed9b1d86a8a2335edb2104b0fad75"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/README.md",
+      "bytes": 7315,
+      "sha256": "6feef028da9f955bdf0f51e545c63306abda0cc34a6db384c69a1a5fd899ef9c"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/activity-tab.png",
+      "bytes": 72675,
+      "sha256": "9305b85759b7a16e5910730e82ce8988941ee829a8f3c61f25e0a7956fbfa528"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/demo-input-test.png",
+      "bytes": 68854,
+      "sha256": "1daff0b39fa74b4d88c5ac58601cb496875f246cb37a8c58e0ef8a3d8d8311f3"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/documents-tab.png",
+      "bytes": 74407,
+      "sha256": "0636aa014805630daf4fd29dd10b2285c344f25e3b13cd549ea4aeab1506bb8d"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/index.html",
+      "bytes": 59509,
+      "sha256": "1ef713e546f3402b2f954ee25afc36624991954d9d1f2305afcc0f0e9298bb27"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/model.js",
+      "bytes": 15502,
+      "sha256": "d5d8d471288c1b04226466105296aed06953962061ee33318bde276c1baafbd9"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/model.test.cjs",
+      "bytes": 6086,
+      "sha256": "f0b270161cf5c8fe9b5f1a16f3b92fd1cfede0c27679ee19aa29983747756949"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/program-directory-mobile.png",
+      "bytes": 27905,
+      "sha256": "65713252bc5f029ea031de82efd3b02838617f3bf8151a520fd31ea2860bde58"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/program-directory.png",
+      "bytes": 47389,
+      "sha256": "b3bcf2416faae469ce413bc58ac9354f2409bcd7a92a779fd24207ec2da8fbb9"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/program-workspace-mobile.png",
+      "bytes": 37327,
+      "sha256": "ea109864377e7db160421d420d46b18f07bb0fd3f09560e0a44648d04e1e9684"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/program-workspace.png",
+      "bytes": 64405,
+      "sha256": "e07900063f3c6805b3186a4ca2bc03d267954277a2d6ba9d0bdfceca06af07dc"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/revision.css",
+      "bytes": 17456,
+      "sha256": "79d785b4e357761d7b240ef3e9c3b18a34f2e9cde3a46830ba4aaca500f0cdf7"
+    },
+    {
+      "path": "clearsight-program-designs/program-workspace-revision/revision.js",
+      "bytes": 41850,
+      "sha256": "6ed798da91eff943f79e7f580e580a0b7fff2d33fdd44eea932016b89188543a"
+    }
+  ]
+}

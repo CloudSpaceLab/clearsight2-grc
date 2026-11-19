@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 import { useEffect, useState } from 'react'
 
 export type ProgramRecord = Readonly<{
@@ -49,7 +50,7 @@ export async function fetchProgram(id: string, signal: AbortSignal): Promise<Pro
   try {
     // The browser never sends identity envelopes or authorization grants.
     // A trusted same-origin edge handles authentication, session and signature.
-    const response = await fetch(`/api/v1/programs/${encodeURIComponent(id)}`, {
+    const response = await programFetch(`/api/v1/programs/${encodeURIComponent(id)}`, {
       method: 'GET', credentials: 'same-origin',
       headers: { Accept: 'application/json' },
       cache: 'no-store', signal,

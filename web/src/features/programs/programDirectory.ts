@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 import { useEffect, useState } from 'react'
 import { isProgramRecord } from './programRecord.ts'
 import type { ProgramRecord } from './programRecord'
@@ -45,7 +46,7 @@ export async function fetchProgramPage(
   if (status) params.set('status', status)
   try {
     // The authenticated edge determines tenant, entity and department scope.
-    const response = await fetch('/api/v1/programs?' + params.toString(), {
+    const response = await programFetch('/api/v1/programs?' + params.toString(), {
       method: 'GET', credentials: 'same-origin', cache: 'no-store',
       headers: { Accept: 'application/json' }, signal,
     })

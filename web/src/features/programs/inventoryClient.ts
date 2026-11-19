@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 export type InventoryKind = 'controls' | 'evidence-contracts'
 
 export type InventoryRecord = Readonly<{
@@ -72,7 +73,7 @@ export async function fetchProgramInventory(
   if (cursor) params.set('cursor', cursor)
   try {
     // The trusted same-origin edge supplies the session; no actor headers or tenant claims.
-    const response = await fetch(
+    const response = await programFetch(
       `/api/v1/programs/${encodeURIComponent(programId)}/${kind}?${params.toString()}`,
       { method: 'GET', credentials: 'same-origin', cache: 'no-store',
         headers: { Accept: 'application/json' }, signal },

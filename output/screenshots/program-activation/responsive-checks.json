@@ -1,0 +1,68 @@
+[
+  {
+    "width": 1280,
+    "height": 900,
+    "theme": "light",
+    "dialogContentWidth": 563,
+    "dialogLeft": 684.7999877929688,
+    "dialogRight": 1264.7999877929688,
+    "dialogWidth": 563,
+    "pageWidth": 1265,
+    "viewport": 1280
+  },
+  {
+    "width": 1280,
+    "height": 900,
+    "theme": "dark",
+    "dialogContentWidth": 563,
+    "dialogLeft": 684.7999877929688,
+    "dialogRight": 1264.7999877929688,
+    "dialogWidth": 563,
+    "pageWidth": 1265,
+    "viewport": 1280
+  },
+  {
+    "width": 768,
+    "height": 900,
+    "theme": "light",
+    "dialogContentWidth": 563,
+    "dialogLeft": 172.8000030517578,
+    "dialogRight": 752.8000030517578,
+    "dialogWidth": 563,
+    "pageWidth": 753,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "height": 900,
+    "theme": "dark",
+    "dialogContentWidth": 563,
+    "dialogLeft": 172.8000030517578,
+    "dialogRight": 752.8000030517578,
+    "dialogWidth": 563,
+    "pageWidth": 753,
+    "viewport": 768
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "dialogContentWidth": 358,
+    "dialogLeft": 0,
+    "dialogRight": 375.2000122070313,
+    "dialogWidth": 358,
+    "pageWidth": 375,
+    "viewport": 390
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "dialogContentWidth": 358,
+    "dialogLeft": 0,
+    "dialogRight": 375.2000122070313,
+    "dialogWidth": 358,
+    "pageWidth": 375,
+    "viewport": 390
+  }
+]

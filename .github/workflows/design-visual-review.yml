@@ -62,7 +62,9 @@ jobs:
             for kind in program-reference program-implementation; do
               url="http://127.0.0.1:4175/program-workspace-preview.html"
               if [ "$kind" = "program-implementation" ]; then
-                url="http://127.0.0.1:4173/?screen=programs"
+                # The catalog-only CI backend has no authorized bank Program.
+                # Exercise the workspace's unavailable state, not the directory.
+                url="http://127.0.0.1:4173/?screen=programs&program=00000000-0000-4000-8000-000000000001"
               fi
               "$browser" --headless=new --no-sandbox --disable-gpu \
                 --disable-dev-shm-usage --hide-scrollbars --no-first-run \
@@ -93,7 +95,7 @@ jobs:
           "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
             --no-first-run --virtual-time-budget=5000 \
             --user-data-dir="$RUNNER_TEMP/chrome-dom-program" --dump-dom \
-            "http://127.0.0.1:4173/?screen=programs" > "$RUNNER_TEMP/program-dom.html" 2>/dev/null
+            "http://127.0.0.1:4173/?screen=programs&program=00000000-0000-4000-8000-000000000001" > "$RUNNER_TEMP/program-dom.html" 2>/dev/null
           "$browser" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage \
             --no-first-run --virtual-time-budget=5000 \
             --user-data-dir="$RUNNER_TEMP/chrome-dom-assessment" --dump-dom \
@@ -101,7 +103,8 @@ jobs:
           grep -q 'class="framework-row' "$RUNNER_TEMP/framework-dom.html"
           grep -q 'class="detail-card"' "$RUNNER_TEMP/framework-dom.html"
           grep -q 'program-panel-overview' "$RUNNER_TEMP/program-dom.html"
-          grep -q 'Coverage unavailable' "$RUNNER_TEMP/program-dom.html"
+          grep -q 'Evidence review does not establish compliance' "$RUNNER_TEMP/program-dom.html"
+          grep -q 'empty-value' "$RUNNER_TEMP/program-dom.html"
           grep -q 'assessment-view-questions' "$RUNNER_TEMP/assessment-dom.html"
           grep -q 'No authorized questions' "$RUNNER_TEMP/assessment-dom.html"
           python3 - <<'PY'

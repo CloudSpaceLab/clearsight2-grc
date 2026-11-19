@@ -1,3 +1,4 @@
+import { programFetch } from './programTransport.ts'
 import { useEffect, useState } from 'react'
 
 type AssessmentCoverage = Readonly<{
@@ -49,7 +50,7 @@ export async function fetchProgramOverview(
 ): Promise<OverviewRead> {
   if (!uuid.test(programId) || !revision) return { status: 'unavailable' }
   try {
-    const response = await fetch(`/api/v1/programs/${programId}/overview`, {
+    const response = await programFetch(`/api/v1/programs/${programId}/overview`, {
       method: 'GET', credentials: 'same-origin', cache: 'no-store',
       headers: { Accept: 'application/json' }, signal,
     })

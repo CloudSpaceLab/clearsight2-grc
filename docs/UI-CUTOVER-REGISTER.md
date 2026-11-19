@@ -12,7 +12,7 @@ Updated: 2026-10-20. Applies only to v2; no claim of complete visual parity, ent
 | Approved screen | Canonical design package | Runtime state | Operational gate |
 | --- | --- | --- | --- |
 | Unified shell / design system | `clearsight-unified-design-system-v1` | Partial: Framework first screen uses the approved shell/CSS | Global navigation, other screen slots, mobile and dark review |
-| Control Tower / Home | `clearsight-designs-01-05` | Empty state only | Authenticated tenant/role/scope, honest source-backed measures |
+| Control Tower / Home | `clearsight-designs-01-05` | Approved Home summary composition with Oversight / Attention / My work and explicit unavailable states | Organization-wide authenticated reads, exact metric definitions and permission-consistent drills |
 | Framework Library | `clearsight-framework-designs` | **Live metadata + approved two-column composition**, pending visual review | Verified editions, adopted/updated views, API-backed governance |
 | Framework Adoption | `clearsight-framework-designs` / `clearsight-designs-01-05` | Not implemented | Actor-bound edition/requirement review, maker-checker |
 | Program Workspace | `clearsight-program-designs` | Approved layout plus authenticated Program detail/directory, native code/status/type/function/jurisdiction, approved requirements, linked controls and active evidence contract references. Server-scoped search and lifecycle filters supported. | Missing authorized four overview metrics, activity assessments, adoption/forms, issues/attention drills, policy-safe verified scoring, mutations and live SSO deployment |

@@ -27,6 +27,18 @@ def main() -> int:
             raise ValueError(f"duplicate source path: {name}")
         expected[name] = (record["bytes"], record["sha256"])
 
+    # Later, separately authored prototypes are not members of the approved
+    # archive. Pin them independently without rewriting archive provenance.
+    derived = json.loads((SOURCE.parent / "DERIVED-PROTOTYPES.json").read_text(encoding="utf-8"))
+    for record in derived["files"]:
+        name = record["path"]
+        parts = PurePosixPath(name).parts
+        if not parts or any(segment in ("..", ".") for segment in parts) or name.startswith("/"):
+            raise ValueError(f"unsafe derived prototype path: {name!r}")
+        if name in expected:
+            raise ValueError(f"derived prototype overlaps archived source: {name}")
+        expected[name] = (record["bytes"], record["sha256"])
+
     actual = {
         p.relative_to(SOURCE).as_posix()
         for p in SOURCE.rglob("*") if p.is_file()
@@ -38,7 +50,7 @@ def main() -> int:
         data = (SOURCE / name).read_bytes()
         if len(data) != size or hashlib.sha256(data).hexdigest() != expected_sha:
             raise ValueError(f"source-byte mismatch: {name}")
-    print(f"Approved source integrity OK: {len(expected)} files, SHA-256 manifest matches.")
+    print(f"Source integrity OK: {len(manifest['files'])} archived files and {len(derived['files'])} separately pinned prototype files.")
     return 0
 
 

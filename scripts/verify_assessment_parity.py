@@ -3,12 +3,12 @@
 from pathlib import Path
 import re
 root=Path(__file__).resolve().parents[1]
-source=(root/"docs/design/references/clearsight-2026-10/source/clearsight-designs-01-05/assessment-workspace-preview.html").read_text()
+source=(root/"docs/design/references/clearsight-2026-10/source/clearsight-designs-01-05/assessment-workspace-preview.html").read_text(encoding="utf-8")
 styles=re.findall(r"<style>(.*?)</style>",source,re.S)
 assert len(styles)==2, "Approved assessment stylesheet changed"
-actual=(root/"web/src/features/assessments/assessment.css").read_text()
+actual=(root/"web/src/features/assessments/assessment.css").read_text(encoding="utf-8")
 assert styles[1].strip() in actual, "Approved Assessment CSS drift"
-markup=(root/"web/src/features/assessments/AssessmentWorkspace.tsx").read_text()
+markup=(root/"web/src/features/assessments/AssessmentWorkspace.tsx").read_text(encoding="utf-8")
 for cls in ("assessment-heading","work-mode-tabs","completion-strip","assessment-body","sections-panel",
             "questions-column","assistance-column","review-summary","evidence-panel",
             "assist-panel","import-layout","final-review-grid"):
@@ -16,5 +16,5 @@ for cls in ("assessment-heading","work-mode-tabs","completion-strip","assessment
 for forbidden in ("11 of 18", "61%", "Ada Okafor", "MFA enforcement report", "Clear Bank Nigeria"):
     assert forbidden not in markup, f"Prototype data leaked to runtime: {forbidden}"
 assert "disabled" in markup and "No authorized questions" in markup
-assert re.search(r"route\.screen\s*===\s*'assessment'", (root/"web/src/App.tsx").read_text()), "Assessment route missing"
+assert re.search(r"route\.screen\s*===\s*'assessment'", (root/"web/src/App.tsx").read_text(encoding="utf-8")), "Assessment route missing"
 print("Assessment CSS/structure guard passed (not browser or operational parity)")
