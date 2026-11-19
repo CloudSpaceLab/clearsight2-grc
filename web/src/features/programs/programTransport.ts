@@ -55,6 +55,14 @@ export async function v1ProgramRead(path: string, init: RequestInit = {}, transp
       const items = list(aggregate.requirements||[]).filter(r=>r.status==='APPROVED').map(r=>({id:r.id,code:r.code,title:r.title,version:r.version,effective_from:r.effective_from}))
       return Response.json({...base,...pageSlice(items,url.searchParams.get('cursor')||'')})
     }
+    if (kind === 'controls') {
+      const now = Date.now()
+      const current = (entry: ObjectRecord) => (!entry.effective_from || Date.parse(String(entry.effective_from)) <= now) && (!entry.effective_until || Date.parse(String(entry.effective_until)) > now)
+      const approved = new Set(list(aggregate.requirements || []).filter(r => r.status === 'APPROVED' && current(r)).map(r => r.id))
+      const linked = new Set(list(aggregate.requirement_control_links || []).filter(l => l.program_id === id && !l.retired_at && approved.has(l.requirement_id)).map(l => l.implementation_id))
+      const items = list(aggregate.control_implementations || []).filter(c => c.program_id === id && linked.has(c.id) && current(c) && ['PLANNED','IN_PROGRESS','IMPLEMENTED'].includes(String(c.status))).map(c => ({ id:c.id, name:c.name, status:c.status, version:c.version, updated_at:c.updated_at }))
+      return Response.json({...base,...pageSlice(items,url.searchParams.get('cursor')||'')})
+    }
     // Inventory semantics differ; fail explicitly rather than invent lifecycle mappings.
     return Response.json({message:'Inventory adapter unavailable'}, {status:503})
   } catch (error) {

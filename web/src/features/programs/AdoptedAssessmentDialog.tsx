@@ -27,13 +27,14 @@ export function AdoptedAssessmentDialog({ context, programId, templates, onClose
       if ((!option?.ready && !legacyForm) || busy) return
       const data = new FormData(event.currentTarget)
       setBusy(true); setError('')
+      const assessmentName = String(data.get('name') || '').trim()
       const period = { period_start: `${data.get('start')}T00:00:00Z`, period_end: `${data.get('end')}T23:59:59Z`, deadline: `${data.get('due')}T23:59:59Z` }
       const request = option?.ready ? command<RequestRecord>(scoped(`/api/v1/programs/${programId}/assessments`, context), {
-        adoption_id: option.adoption_id, assessment_key: assessmentKey.current,
+        assessment_name: assessmentName, adoption_id: option.adoption_id, assessment_key: assessmentKey.current,
         form_template_id: option.form_template_id, form_template_version: option.form_template_version,
         expected_program_version: option.program_version, respondent_principal_id: data.get('respondent'),
         ...period,
-      }) : command<RequestRecord>(scoped(`/api/v1/programs/${programId}/form-templates/${legacyForm!.id}/collections`, context), { form_template_version: legacyForm!.version, ...period })
+      }) : command<RequestRecord>(scoped(`/api/v1/programs/${programId}/form-templates/${legacyForm!.id}/collections`, context), { assessment_name: assessmentName, form_template_version: legacyForm!.version, ...period })
       void request.then(onCreated).catch(e => setError(e instanceof Error ? e.message : 'Assessment creation failed.')).finally(() => setBusy(false))
     }}>
       {loading && <p role="status">Loading approved adoptions and respondent assignments…</p>}
@@ -47,6 +48,7 @@ export function AdoptedAssessmentDialog({ context, programId, templates, onClose
         {option.blocker && <p role="status">{option.blocker}</p>}
         <label className="program-field">Respondent<select key={selected} name="respondent" required disabled={busy || !option.ready} defaultValue=""><option value="">Choose a person in an adopted unit</option>{option.respondents.map(person => <option value={person.id} key={person.id}>{person.name}</option>)}</select></label>
       </>}
+      <label className="program-field">Assessment name <small>Optional</small><input name="name" maxLength={150} placeholder="Use the approved form name and reporting period" disabled={busy}/></label>
       <label className="program-field">Period start<input name="start" type="date" required disabled={busy}/></label>
       <label className="program-field">Period end<input name="end" type="date" required disabled={busy}/></label>
       <label className="program-field">Response due date<input name="due" type="date" required disabled={busy}/></label>

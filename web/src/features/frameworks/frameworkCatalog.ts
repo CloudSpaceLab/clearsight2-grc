@@ -15,3 +15,28 @@ export function parseEditions(value:unknown):Edition[]{
  return items as Edition[]
 }
 export function safeSource(value:string):string|null {try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password?url.href:null}catch{return null}}
+
+
+export type FrameworkProgramUsage = {template_code?:string;edition_id?:string;active_program_count:number}
+export function parseFrameworkProgramUsage(value:unknown):FrameworkProgramUsage[] {
+ if(!value||typeof value!=='object'||!Array.isArray((value as {items?:unknown}).items))throw Error('Invalid framework Program counts')
+ const items=(value as {items:FrameworkProgramUsage[]}).items
+ const keys=new Set<string>()
+ for(const item of items){
+  if(!item||typeof item!=='object'||!Number.isSafeInteger(item.active_program_count)||item.active_program_count<1)throw Error('Invalid framework Program count')
+  if(item.template_code!==undefined&&(typeof item.template_code!=='string'||!item.template_code.trim()))throw Error('Invalid framework template identity')
+  if(item.edition_id!==undefined&&(typeof item.edition_id!=='string'||!item.edition_id.trim()))throw Error('Invalid framework edition identity')
+  const template=typeof item.template_code==='string'&&item.template_code.trim()
+  const edition=typeof item.edition_id==='string'&&item.edition_id.trim()
+  if(!!template===!!edition)throw Error('Invalid framework Program identity')
+  const key=template?`template:${template}`:`edition:${edition}`
+  if(keys.has(key))throw Error('Duplicate framework Program count')
+  keys.add(key)
+ }
+ return items
+}
+export function frameworkUsageLabel(count:number|undefined) {
+ if(count===undefined)return 'Usage unavailable'
+ if(count===0)return 'Available'
+ return `In ${count} Program${count===1?'':'s'}`
+}

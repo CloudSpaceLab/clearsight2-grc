@@ -4,3 +4,5 @@ web/node_modules/
 /scripts/local.ps1
 .env
 .env.local
+output/screenshots/
+docs/design/references/clearsight-2026-10/source/clearsight-framework-designs/framework-adoption-wizard/evidence/

@@ -17,3 +17,18 @@ test('reorders a question across sections while preserving follow-ups',()=>{cons
 test('round-trips prototype grids, scales, time, dropdown and images',()=>{const d=simpleDraft();Object.assign(d,{name:'Supplier controls',purpose:'Review security controls'});d.questions=[{...simpleQuestion(),label:'Controls',type:'grid_radio',rows:['MFA','Backups'],columns:['Yes','No'],image:{data:'data:image/png;base64,dGVzdA==',alt:'Control diagram'}},{...simpleQuestion(),label:'Coverage',type:'grid_checkbox',rows:['Policy'],columns:['Current','Approved']},{...simpleQuestion(),label:'Rating',type:'rating',scaleMax:5},{...simpleQuestion(),label:'Scale',type:'linear_scale',scaleMax:10},{...simpleQuestion(),label:'Time',type:'time'},{...simpleQuestion(),label:'Owner',type:'dropdown',options:['Risk','Security']}];assert.deepEqual(simpleIssues(d),[]);const saved=simplePayload(d);const reopened=reopenSimpleTemplate({...saved,id:'saved',version:1,status:'DRAFT'});assert.deepEqual(simplePayload(reopened).fields,saved.fields);d.questions[0].rows=['MFA','MFA'];assert.match(simpleIssues(d).join(' '),/unique rows/)})
 
 test('round-trips native framework seed identity, guidance, presentation and evidence restrictions',()=>{const form={id:'native',code:'FRAMEWORK_ISO_27001_2022',name:'ISO starter',purpose:'Review banking access',version:3,status:'ACTIVE',scoring_mode:'NONE',presentation:{default_mode:'WIZARD',allow_mode_switch:true},sections:[{id:'privileged_access',title:'Privileged access review',help:'Starter content requires review'}],fields:[{id:'date',section_id:'privileged_access',label:'When was the review completed?',type:'date',required:true},{id:'record',section_id:'privileged_access',label:'Upload the signed review record.',type:'file',required:true,accepted_formats:['application/pdf'],browser_cache_policy:'NO_BROWSER_CACHE'}]};const payload=simplePayload(reopenSimpleTemplate(form));assert.equal(payload.code,form.code);assert.deepEqual(payload.presentation,form.presentation);assert.deepEqual(payload.sections,form.sections);assert.deepEqual(payload.fields,form.fields)})
+
+test('round-trips question expiry and pinned source validation through a saved revision',()=>{
+ const draft=simpleDraft()
+ Object.assign(draft,{name:'Sample quality check',purpose:'Review sample staff evidence'})
+ const binding={binding_id:'01a1edb9-8235-763c-bd58-f354b1df3427',binding_version:1,value_field:'employee_id'}
+ Object.assign(draft.questions[0],{label:'Staff identifier',answer_validity_days:7,validation_binding:binding})
+ const saved={...simplePayload(draft),id:'quality-form',version:2,status:'DRAFT'}
+ const reopened=reopenSimpleTemplate(saved)
+ assert.equal(reopened.questions[0].answer_validity_days,7)
+ assert.deepEqual(simplePayload(reopened).fields[0].validation_binding,binding)
+ assert.throws(()=>reopenSimpleTemplate({...saved,fields:[{...saved.fields[0],answer_validity_days:-1}]}))
+ assert.throws(()=>reopenSimpleTemplate({...saved,fields:[{...saved.fields[0],validation_binding:{...binding,binding_version:0}}]}))
+ draft.questions[0].answer_validity_days=0
+ assert.match(simpleIssues(draft).join(' '),/validity period/)
+})

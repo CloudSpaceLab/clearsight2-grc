@@ -23,6 +23,7 @@ function AppContent() {
   const { context } = useV1Session()
   const [route, setRoute] = useState(routeFromLocation)
   const [formDirty, setFormDirty] = useState(false)
+  const [frameworkVisit, setFrameworkVisit] = useState(0)
   useEffect(() => {
     const sync = () => setRoute(routeFromLocation())
     window.addEventListener('popstate', sync)
@@ -32,9 +33,10 @@ function AppContent() {
   function navigate(screen: Screen, programId?: string) {
     if (formDirty && !window.confirm('You have unsaved form changes. Leave without saving?')) return
     setFormDirty(false)
+    if (screen === 'frameworks') setFrameworkVisit(visit => visit + 1)
     const location = new URL(window.location.href)
     location.searchParams.set('screen', screen)
-    for(const key of ['form','version','group'])location.searchParams.delete(key)
+    for(const key of ['form','version','group','tab','request','issue','queue','schedules'])location.searchParams.delete(key)
     if (screen === 'programs' && programId) location.searchParams.set('program', programId)
     else location.searchParams.delete('program')
     window.history.pushState(null, '', location)
@@ -49,6 +51,6 @@ function AppContent() {
             onBackPrograms={() => navigate('programs')}
             openFrameworks={() => navigate('frameworks')} />
       : route.screen === 'assessment' ? <AssessmentWorkspace onAuthoringDirty={setFormDirty} />
-      : v1Enabled ? <V1FrameworkLibrary onDirty={setFormDirty} key={`${context?.tenant.id||''}:${context?.legal_entity.id||''}:${context?.actor.id||''}`}/> : <FrameworkLibrary />}
+      : v1Enabled ? <V1FrameworkLibrary onDirty={setFormDirty} key={`${context?.tenant.id||''}:${context?.legal_entity.id||''}:${context?.actor.id||''}:${frameworkVisit}`}/> : <FrameworkLibrary key={frameworkVisit}/>}
   </DesignShell>
 }

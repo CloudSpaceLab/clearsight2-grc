@@ -81,6 +81,22 @@ Significant differences: applicability is a review flag rather than an automatic
 
 ## Content review still required
 
+### Active Program usage · 18 November 2026
+
+The library follows the status presentation in `clearsight-framework-designs/framework-library.html#programs`. A framework row shows **In N Programs** when the approved adoption and its Program are both active and effective. The selected framework shows **In use**. A verified zero shows **Available** on the row and **Reference** in the details. Counts refresh on library entry and after returning from adoption work. Unavailable counts have an explicit failure state and retry action.
+
+**In my Programs** now filters to frameworks used by active Programs. Its tab count is the number of framework references in use, while each row counts distinct active Programs. The local ISO reference has two active Programs and is the only framework in use in the selected entity.
+
+The v1 endpoint `GET /api/v1/framework-catalog/program-usage` uses verified tenant/entity scope and one grouped database query. Drafts, paused Programs, pending adoptions, expired effective periods, other entities and other tenants are excluded. Backend tests cover these boundaries, duplicate prevention and unavailable reads. The PostgreSQL workflow regression, frontend build and ten framework model checks passed.
+
+The live library and filter were demonstrated with keyboard navigation at 1440, 768 and 390 pixels in light/dark modes. Captures are stored in `output/screenshots/framework-usage-2026-11-18/`. The prototype HTML was inspected directly from disk. The browser tool blocked access to its file URL, so a fresh browser screenshot of that archived page was unavailable. Existing Home navigation is retained. Industry filtering and Edition updates retain their existing unavailable states.
+
+### Frameworks sidebar return · 18 November 2026
+
+The Frameworks sidebar action now opens a fresh library view after entering a selected framework or its adoption wizard. The existing unsaved-change check runs before the view resets. The current Home navigation is retained.
+
+The frontend build and nine framework model checks passed. Live checks opened ISO adoption and returned through the sidebar with click and keyboard Enter at 1440, 768 and 390 pixels in light and dark mode. The unsaved-change confirmation appeared after a local applicability edit. Automated cancel/confirm handling was blocked by the native browser dialog, so that branch remains unverified. No adoption edit was saved. Full-page captures are in `output/screenshots/framework-navigation-2026-11-18/`.
+
 Detailed ISO/PCI/SOC mapping requires licensed source review and the bank's content approval. The six other questionnaires remain draft pending their own review; only ISO/GDPR were independently activated in this demo. Starter adoption does not establish framework compliance, and applicability flags do not grant exemptions. Full assessment dispatch, evidence collection and subsequent compliance conclusions are separate existing workflows, outside this starter-adoption acceptance.
 
 Authoritative source metadata: ISO https://www.iso.org/standard/27001 ; NIST https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf ; PCI https://www.pcisecuritystandards.org/document_library/ ; AICPA https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022 ; NDPA https://ndpc.gov.ng/wp-content/uploads/2024/03/Nigeria_Data_Protection_Act_2023.pdf ; UK https://www.legislation.gov.uk/ukpga/2018/12/contents ; GDPR https://eur-lex.europa.eu/eli/reg/2016/679/oj ; DORA https://eur-lex.europa.eu/eli/reg/2022/2554/oj . Verified citations are kept distinct from broad assessment areas awaiting detailed mapping review.
